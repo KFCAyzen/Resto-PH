@@ -90,27 +90,33 @@ const MenuPage: React.FC = () => {
     <div>
       <div className='menu'>
         {menuItems.map((item) => (
-          <div className={`menuitem ${item.nom === 'Taro Sauce Jaune' || item.nom === 'Bouillon chaud' ? 'spec' : ''}`} key={item.id}
-          onClick={() => setSelectedItem(item)}
-          style={{cursor: 'pointer'}}>
+          <div
+            className={`menuitem ${item.nom === 'Taro Sauce Jaune' || item.nom === 'Bouillon chaud' ? 'spec' : ''}`}
+            key={item.id}
+            onClick={() => setSelectedItem(item)}
+            style={{ cursor: 'pointer' }}
+          >
             <img src={item.image} alt={item.nom} />
-            <h2>{item.nom} </h2>
-            <p>{item.prix} </p>
+            <h2>{item.nom}</h2>
+            <p>{item.prix}</p>
           </div>
         ))}
       </div>
 
-      {selectedItem && ( 
-        <div className='details' style={{ border: '1px solid gray', padding: '10px', margin: '20px' }}>
-          <h2>{selectedItem.nom} </h2>
-          <img src={selectedItem.image} alt={selectedItem.nom} width="200" />
-          <p><strong>Description :</strong> {selectedItem.description} </p>
-          <p><strong>Prix: </strong>{selectedItem.prix} </p>
-          <button onClick={() => setSelectedItem(null)}>Fermer</button>
-        </div>
+      {selectedItem && (
+        <>
+          <div className="overlay" onClick={() => setSelectedItem(null)}></div>
+          <div className="modal">
+            <h2>{selectedItem.nom}</h2>
+            <img src={selectedItem.image} alt={selectedItem.nom} />
+            <p><strong>Description :</strong> {selectedItem.description}</p>
+            <p><strong>Prix :</strong> {selectedItem.prix}</p>
+            <button onClick={() => setSelectedItem(null)}>Fermer</button>
+          </div>
+        </>
       )}
     </div>
-  )
-}
+  );
+};
 
 export default MenuPage;
