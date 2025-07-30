@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import './App.css';
 import MenuPage from './MenuPage.tsx';
 import logo from './assets/WhatsApp Image 2025-07-29 à 14.49.18_44930011.jpg'
