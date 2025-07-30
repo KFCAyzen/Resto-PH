@@ -37,14 +37,14 @@ const menuItems: MenuItem[] = [
     nom: "Taro Sauce Jaune",
     prix: "6000 FCFA",
     image: "https://res.cloudinary.com/hv9ssmzrz/image/fetch/c_fill,f_auto,h_488,q_auto,w_650/https://s3-eu-west-1.amazonaws.com/images-ca-1-0-1-eu/recipe_photos/original/221913/poulet_DG.jpg",
-    description: "Plat traditionnel Bamiléké très prisé"
+    description: "Plat traditionnel Bamiléké très prisé disponible tout les dimanches"
   },
   {
     id: 5,
     nom: "Bouillon chaud",
     prix: "6000 FCFA",
     image: "https://res.cloudinary.com/hv9ssmzrz/image/fetch/c_fill,f_auto,h_488,q_auto,w_650/https://s3-eu-west-1.amazonaws.com/images-ca-1-0-1-eu/recipe_photos/original/221913/poulet_DG.jpg",
-    description: "Bouillon épicé avec viande de boeuf pour se rechauffer"
+    description: "Bouillon épicé avec viande de boeuf pour se rechauffer disponible tout les dimanches"
   },
   {
     id: 6,
