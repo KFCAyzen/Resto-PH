@@ -28,8 +28,9 @@ import plantainFrie from "./assets/platain-frie.webp";
 import ndoléFumé from "./assets/Ndole-poisson-fume.jpg";
 import pommePoisson from "./assets/pomme-poisson.jpeg";
 import pommeViande from "./assets/pomme-viande.jpeg";
-import pilaf from "./assets/Riz-pilaf-au-Thermomix.jpg"
-import bouillon from "./assets/bouillon.jpeg"
+import pilaf from "./assets/Riz-pilaf-au-Thermomix.jpg";
+import bouillon from "./assets/bouillon.jpeg";
+import eru from "./assets/eru.jpeg"
 
 export const images = {
     bouillon,
@@ -63,5 +64,6 @@ export const images = {
     pilaf,
     rognon,
     émincé,
-    tripes
+    tripes,
+    eru
 }
