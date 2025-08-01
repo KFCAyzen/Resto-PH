@@ -1,0 +1,271 @@
+import pouletDG from './assets/poulet_DG.jpg'; 
+import { images } from "./images";
+
+export type MenuItem = {
+  id: number;
+  nom: string;
+  prix: string;
+  image: string;
+  description: string;
+  catégorie: string[];
+};
+
+export const menuItems: MenuItem[] = [
+  {
+    id: 1,
+    nom: "Poulet DG",
+    prix: "4000 FCFA",
+    image: pouletDG,
+    description: "Poulet frit mijoté avec plantains mûrs, légumes et épices.",
+    catégorie: ["Plats principaux", "Plats chaud"]
+  },
+  {
+    id: 2,
+    nom: "Pomme sauté à la viande de boeuf",
+    prix: "3000 FCFA",
+    image: images.pommeViande,
+    description: "Poulet mariné et grillé au feu de bois, tendre et savoureux.",
+    catégorie: ["Plats principaux", "Plats chaud"]
+  },
+  {
+    id: 3,
+    nom: "Poulet Braisé",
+    prix: "4000 FCFA",
+    image: images.pouletBraisé,
+    description: "Poulet mariné et grillé au feu de bois, tendre et savoureux.",
+    catégorie: ["Grillades & Poêlés", "Plats chaud"]
+  },
+  {
+    id: 25,
+    nom: "Poulet panné",
+    prix: "4000 FCFA",
+    image: images.pané,
+    description: "Morceaux de poulet enrobé de chapelure et frit à la perfection.",
+    catégorie: ["Grillades & Poêlés", "Plats chaud"]
+  },
+  {
+    id: 4,
+    nom: "Taro Sauce Jaune",
+    prix: "2500 FCFA",
+    image: images.taro,
+    description: "Taro pilé accompagné d'une sauce jaune aux épices et huile de palme.Plat traditionnel Bamiléké très prisé disponible tout les dimanches",
+    catégorie: ["Plats principaux", "Spécialitées du dimanche", "Plats traditionnels"]
+  },
+  {
+    id: 5,
+    nom: "Eru",
+    prix: "2500 FCFA",
+    image: images.eru,
+    description: "Plat traditionnel à base de feuilles d'okok finement coupées, mijotées avec de l’eau, du sel gemme, du poisson fumé, de la viande, le tout relevé avec un peu d’huile rouge, disponible le dimanche.",
+    catégorie: ["Spécialitées du dimanche", "Plats chaud", "Plats traditionnels", "Plats principaux"]
+  },
+  {
+    id: 32,
+    nom: "Bouillon chaud",
+    prix: "2500 FCFA",
+    image: images.bouillon,
+    description: "Bouillon épicé à base de viande de bœuf, servi bien chaud avec des épices locales. Disponible tout les dimanches",
+    catégorie: ["Spécialitées du dimanche", "Soupes", "Plats principaux"]
+  },
+  {
+    id: 6,
+    nom: "Ndolé Viade",
+    prix: "3000 FCFA",
+    image: images.ndolé,
+    description: "Feuilles d’oseille amère mijotées avec viande et pâte d’arachide.",
+    catégorie: ["Plats traditionnels", "Plats chaud", "Plats principaux"]
+  },
+  {
+    id: 7,
+    nom: "Saucisses grillées",
+    prix: "2000 FCFA",
+    image: images.saucisse,
+    description: "Saucisses épicées grillées, servies chaudes.",
+    catégorie: ["Grillades & Poêlés", "Plats chaud"]
+  },
+  {
+    id: 8,
+    nom: "Émincés de boeuf",
+    prix: "2000 FCFA",
+    image: images.émincé,
+    description: "Fines lamelles de bœuf sautées, sauce légère et savoureuse.",
+    catégorie: ["Plats chaud", "Plats principaux"]
+  },
+  {
+    id: 9,
+    nom: "Tripes de boeuf",
+    prix: "3000 FCFA",
+    image: images.tripes,
+    description: "Tripes nettoyées et sautées avec condiments, texture fondante.",
+    catégorie: ["Plats chaud", "Plats principaux"]
+  },
+  {
+    id: 10,
+    nom: "Rognons de boeuf",
+    prix: "3500 FCFA",
+    image: images.rognon,
+    description: "Rognons tendres sautés à la poêle avec oignons, divers épices et piment doux.",
+    catégorie: ["Plats chaud", "Plats principaux"]
+  },
+  {
+    id: 11,
+    nom: "Ndolé au poisson Fumé",
+    prix: "2500 FCFA",
+    image: images.ndoléFumé,
+    description: "Ndolé revisité avec poisson fumée, goût intense et rustique.",
+    catégorie: ["Plats chaud", "Plats traditionnels", "Plats principaux"]
+  },
+  {
+    id: 12,
+    nom: "Pommes sautées avec poisson",
+    prix: "2500 FCFA",
+    image: images.pommePoisson,
+    description: "Pommes de terre sautées accompagnées de filets de poisson épicé.",
+    catégorie: ["Plats chaud", "Plats principaux"]
+  },
+  {
+    id: 13,
+    nom: "Poulet Yassa",
+    prix: "5000 FCFA",
+    image: images.pouletYassa,
+    description: "Poulet mariné aux oignons, citron et moutarde, originaire du Sénégal.",
+    catégorie: ["Plats chaud", "Plats principaux"]
+  },
+  {
+    id: 14,
+    nom: "Bar Braisé",
+    prix: "7000 - 8000 FCFA",
+    image: images.barBraisé,
+    description: "Filet de bar rôti à la braise, peau croustillante chaire tendre.",
+    catégorie: ["Grillades & Poêlés"]
+  },
+  {
+    id: 15,
+    nom: "Bar Calada Braisé",
+    prix: "5000 - 6000 FCFA",
+    image: images.calada,
+    description: "Bar calada rôti à la braise avec un mélange d'épices exotiques.",
+    catégorie: ["Grillades & Poêlés"]
+  },
+  {
+    id: 16,
+    nom: "Carpe Braisé",
+    prix: "4000 - 5000 FCFA",
+    image: images.carpe,
+    description: "Carpe entière grillé, parfumée aux herbes et condiments locaux.",
+    catégorie: ["Grillades & Poêlés"]
+  },
+  {
+    id: 17,
+    nom: "Foie de boeuf sauté",
+    prix: "3000 FCFA",
+    image: images.foie,
+    description: "Foie de boeuf sauté aux oignons et poivrons, tendre et parfumé.",
+    catégorie: ["Plats chaud", "Plats principaux"]
+  },
+  {
+    id: 18,
+    nom: "Omelette Nature",
+    prix: "1500 FCFA",
+    image: images.omlette,
+    description: "Omelette simple aux oeufs battus, légère et moelleuse.",
+    catégorie: ["Petit déjeuné"]
+  },
+  {
+    id: 19,
+    nom: "Omelette Sardine",
+    prix: "2000 FCFA",
+    image: images.omletteSardine,
+    description: "Omelette garnie de sardines et dépices douces.",
+    catégorie: ["Petit déjeuné"]
+  },
+  {
+    id: 20,
+    nom: "Omelette Saucisson",
+    prix: "2000 FCFA",
+    image: images.omletteSaucisson,
+    description: "Omelette généreuse au saucisson, parfaite pour les gourmands.",
+    catégorie: ["Petit déjeuné"]
+  },
+  {
+    id: 21,
+    nom: "Tasse de lait",
+    prix: "500 FCFA",
+    image: images.tasse,
+    description: "Lait chaud servi nature, doux et reconfortant.",
+    catégorie: ["Boissons chaudes"]
+  },
+  {
+    id: 22,
+    nom: "Thé Citron",
+    prix: "500 FCFA",
+    image: images.théCitron,
+    description: "Infusion légère au citron, rafraichissanté et tonifiante",
+    catégorie: ["Boissons chaudes"]
+  },
+  {
+    id: 23,
+    nom: "Thé Menthe",
+    prix: "500 FCFA",
+    image: images.théMenthe,
+    description: "Thé vert infusé à la menthe fraîche, apaisant et parfumé.",
+    catégorie: ["Boissons chaudes"]
+  },
+  {
+    id: 24,
+    nom: "Thé Vert",
+    prix: "500 FCFA",
+    image: images.théVert,
+    description: "Thé classique riche en antioxydants, goût pur et naturel.",
+    catégorie: ["Boissons chaudes"]
+  }
+  ,
+  {
+    id: 26,
+    nom: "Plantains Vapeur",
+    prix: "",
+    image: images.plantainVapeur,
+    description: "Plantains cuit à la vapeur",
+    catégorie: ["Accompagnements"]
+  },
+  {
+    id: 27,
+    nom: "Plantains Frit",
+    prix: "",
+    image: images.plantainFrie,
+    description: "Plantains frit et dorés à l'huile.",
+    catégorie: ["Accompagnements"]
+  },
+  {
+    id: 28,
+    nom: "Plantains tapé",
+    prix: "",
+    image: images.tapé,
+    description: "Plantains écrasé et frit, croustillant et moelleux.",
+    catégorie: ["Accompagnements"]
+  },
+  {
+    id: 29,
+    nom: "Frites de pommes de terres",
+    prix: "",
+    image: images.frite,
+    description: "Pommes de terre frit et dorés à l'huile.",
+    catégorie: ["Accompagnements"]
+  },
+  {
+    id: 30,
+    nom: "Pommes Vapeur",
+    prix: "",
+    image: images.pommeVapeur,
+    description: "Pommes de terre cuit à la vapeur.",
+    catégorie: ["Accompagnements"]
+  },
+  {
+    id: 31,
+    nom: "Riz Pilaf",
+    prix: "",
+    image: images.pilaf,
+    description: "Riz parfumé mijoté et assaisonné cuit à la vapeur",
+    catégorie: ["Accompagnements"]
+  }
+];

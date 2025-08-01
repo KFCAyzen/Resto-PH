@@ -26,8 +26,53 @@
   margin-top: 15px;
  }
  .title img{
-  height: 60px;
-  border-radius: 30px;
+  height: 40px;
+  border-radius: 20px;
+ }
+ .title h1{
+  font-size: 20px;
+ }
+ .navbar{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 0px;
+  margin-left: 15px;
+ }
+
+ .navbar img{
+  height: 40px;
+ }
+  
+ .menBtn{
+  background-color: #7d3837;
+  padding: 10px 10px;
+  border-radius: 10px;
+  color: #f7f7f7;
+  cursor: pointer;
+ }
+
+ .cartBtn{
+  padding: 4px 0px;
+  border-radius: 10px;
+  color: #f7f7f7;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  position: relative;
+  margin-left: 10px;
+ }
+
+ .cartBtn p{
+  margin: 0;
+  position: absolute;
+  background-color: #d62828;
+  padding: 4px;
+  color: #f7f7f7;
+  border-radius: 20px !important;
+  font-size: 10px;
+  bottom: 4px;
+  right: 0;
  }
 
  .menu-section{
@@ -130,9 +175,27 @@
   margin-bottom: 10px;
  }
 
- .modal button{
+ .buttons{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+ }
+
+ .close{
   margin-top: 15px;
   background-color: #e63946;
+  color: white;
+  border: none;
+  padding: 12px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s ease-in-out;
+ }
+
+ .addBtn{
+  margin-top: 15px;
+  background-color: black;
   color: white;
   border: none;
   padding: 10px 15px;
@@ -142,8 +205,12 @@
   transition: background-color 0.2s ease-in-out;
  }
 
+ .modal img{
+  height: 250px;
+ }
+
  .modal button:hover {
-  background-color: #d62828;
+  backdrop-filter: brightness(0.5);
  }
 
  @keyframes fadeIn {

@@ -31,8 +31,10 @@ import pommeViande from "./assets/pomme-viande.jpeg";
 import pilaf from "./assets/Riz-pilaf-au-Thermomix.jpg";
 import bouillon from "./assets/bouillon.jpeg";
 import eru from "./assets/eru.jpeg"
+import cart from "./assets/cart.png"
 
 export const images = {
+    cart,
     bouillon,
     pouletBraisé,
     poissonBraisé,
