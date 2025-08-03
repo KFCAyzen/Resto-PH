@@ -8,24 +8,43 @@ type Props = {
 
 const CartPage: React.FC<Props> = ({ cartItems, setCartItems }) => {
   const updateQuantity = (id: number, delta: number) => {
-    const updatedCart = cartItems
-      .map(item =>
-        item.id === id
-          ? { ...item, quantité: (item.quantité || 1) + delta }
-          : item
-      )
-      .filter(item => (item.quantité || 1) > 0);
-
-    setCartItems(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart)); // 🔁 synchro
+    setCartItems(prev =>
+      prev
+        .map(item =>
+          item.id === id
+            ? { ...item, quantité: (item.quantité || 1) + delta }
+            : item
+        )
+        .filter(item => (item.quantité || 1) > 0)
+    );
   };
 
   const handleClearCart = () => {
     const confirmed = window.confirm("Es-tu sûr de vouloir vider tout le panier ?");
     if (confirmed) {
       setCartItems([]);
-      localStorage.removeItem("cart"); // ❌ vide localStorage
+      localStorage.removeItem("cart");
     }
+  };
+
+  const handleCommander = () => {
+    if (cartItems.length === 0) {
+      alert("Ton panier est vide.");
+      return;
+    }
+
+    const phoneNumber = "237657011948";
+
+    const message = encodeURIComponent(
+      `Bonjour, J’aimerais commander les articles suivants :\n\n` +
+      cartItems.map(item =>
+        `- ${item.nom} x${item.quantité} (${item.prix})`
+      ).join("\n") +
+      `\n\nTotal: ${formatPrix(totalPrix)}`
+    );
+
+    const url = `https://wa.me/${phoneNumber}?text=${message}`;
+    window.open(url, "_blank");
   };
 
   const totalPrix = cartItems.reduce((acc, item) => {
@@ -69,36 +88,36 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems }) => {
 
           <hr />
           <h2>Total : {formatPrix(totalPrix)}</h2>
-            <div className="cartBtns">
-              <button onClick={() => {window.location.href = "https://wa.link/k9v3iu";}}
+
+          <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem' }}>
+            <button
+              onClick={handleClearCart}
               style={{
-                marginTop: '1rem',
-                backgroundColor: '#2980b9',
+                backgroundColor: '#c0392b',
                 color: 'white',
                 padding: '0.7rem 1.2rem',
                 border: 'none',
                 borderRadius: '5px',
-                cursor: 'pointer',
-                marginLeft: '1rem'
+                cursor: 'pointer'
+              }}
+            >
+              Vider le panier
+            </button>
+
+            <button
+              onClick={handleCommander}
+              style={{
+                backgroundColor: '#27ae60',
+                color: 'white',
+                padding: '0.7rem 1.2rem',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: 'pointer'
               }}
             >
               Commander
             </button>
-            </div>
-          <button
-            onClick={handleClearCart}
-            style={{
-              marginTop: '1rem',
-              backgroundColor: '#c0392b',
-              color: 'white',
-              padding: '0.7rem 1.2rem',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: 'pointer'
-            }}
-          >
-            Vider le panier
-          </button>
+          </div>
         </div>
       )}
     </div>
