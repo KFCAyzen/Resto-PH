@@ -252,7 +252,7 @@
  .itemList div{
   display: flex;
   justify-content: center;
-  gap: 15px;
+  gap: 35px;
  }
 
  @keyframes fadeIn {
