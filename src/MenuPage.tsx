@@ -9,8 +9,8 @@ type Props = {
 };
 
 const MenuPage: React.FC<Props> = ({ 
-  // cartItems, 
-  // setCartItems,
+  cartItems, 
+  setCartItems,
    onAddToCart }) => {
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
 
