@@ -1,6 +1,6 @@
 import './App.css';
 import MenuPage from './MenuPage.tsx';
-// import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import CartPage from './CartPage';
 import logo from './assets/WhatsApp Image 2025-07-29 à 14.49.18_44930011.jpg';
