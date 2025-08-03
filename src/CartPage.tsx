@@ -1,5 +1,6 @@
 import React from 'react';
 import type { MenuItem } from './types';
+import './App.css';
 
 type Props = {
   cartItems: MenuItem[];
@@ -53,14 +54,14 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems }) => {
   }, 0);
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <h1>Votre Panier</h1>
+    <div className='cartContent'>
+      <h1 className='hcart'>Votre Panier</h1>
 
       {cartItems.length === 0 ? (
         <p>Le panier est vide.</p>
       ) : (
         <div>
-          <ul>
+          <ul className='itemList'>
             {cartItems.map((item) => (
               <li key={item.id} style={{ marginBottom: '1rem' }}>
                 <div>
@@ -89,7 +90,7 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems }) => {
           <hr />
           <h2>Total : {formatPrix(totalPrix)}</h2>
 
-          <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem' }}>
+          <div className='CartBtns' style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem' }}>
             <button
               onClick={handleClearCart}
               style={{
