@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
-import { menuItems } from './types'; 
+import type { MenuItem } from './types';
+import { menuItems } from './types';
 
-export type Props = {
+type Props = {
   cartItems: MenuItem[];
   setCartItems: React.Dispatch<React.SetStateAction<MenuItem[]>>;
+  onAddToCart: (item: MenuItem) => void;
 };
 
-const MenuPage: React.FC<Props> = ({ cartItems, setCartItems }) => {
+const MenuPage: React.FC<Props> = ({ cartItems, setCartItems, onAddToCart }) => {
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
-
-  const addToCart = (item: MenuItem) => {
-    setCartItems((prev) => [...prev, item]);
-  };
 
   const groupedItems = menuItems.reduce((acc: { [key: string]: MenuItem[] }, item) => {
     item.catégorie.forEach((cat) => {
@@ -28,7 +26,12 @@ const MenuPage: React.FC<Props> = ({ cartItems, setCartItems }) => {
           <h2 className='categorie-title'>{catégorie}</h2>
           <div className="menu-items">
             {items.map((item) => (
-              <div key={`${catégorie}-${item.id}`} className='menuitem' onClick={() => setSelectedItem(item)} style={{ cursor: 'pointer' }}>
+              <div
+                key={`${catégorie}-${item.id}`}
+                className='menuitem'
+                onClick={() => setSelectedItem(item)}
+                style={{ cursor: 'pointer' }}
+              >
                 <img src={item.image} alt={item.nom} />
                 <h3>{item.nom}</h3>
                 <p>{item.prix}</p>
@@ -47,7 +50,15 @@ const MenuPage: React.FC<Props> = ({ cartItems, setCartItems }) => {
             <p><strong>Description :</strong> {selectedItem.description}</p>
             <p><strong>Prix :</strong> {selectedItem.prix}</p>
             <div className="buttons">
-              <button className='addBtn' onClick={() => { addToCart(selectedItem); setSelectedItem(null); }}>Ajouter au panier</button>
+              <button
+                className='addBtn'
+                onClick={() => {
+                  onAddToCart(selectedItem);
+                  setSelectedItem(null);
+                }}
+              >
+                Ajouter au panier
+              </button>
               <button className='close' onClick={() => setSelectedItem(null)}>Fermer</button>
             </div>
           </div>
