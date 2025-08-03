@@ -240,6 +240,8 @@
   padding: 20px;
   gap: 20px;
   width: 80%;
+  margin-top: 50px;
+  margin-left: 50px;
  }
 
  .cartContent h2, h1{
@@ -249,7 +251,7 @@
  .itemList div{
   display: flex;
   justify-content: center;
-  gap: 25px;
+  gap: 15px;
  }
 
  @keyframes fadeIn {
