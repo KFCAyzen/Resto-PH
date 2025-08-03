@@ -234,7 +234,6 @@
   flex-direction: column;
   background: rgba(196, 194, 194, 0.2); 
   backdrop-filter: blur(10px);          
-  -webkit-backdrop-filter: blur(10px);  /* Compatibilité Safari */
   border-radius: 12px;                  
   backdrop-filter: blur(10px);
   border-radius: 15px;
