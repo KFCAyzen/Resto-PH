@@ -69,7 +69,22 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems }) => {
 
           <hr />
           <h2>Total : {formatPrix(totalPrix)}</h2>
-
+            <div className="cartBtns">
+              <button onClick={() => {window.location.href = "https://wa.link/k9v3iu";}}
+              style={{
+                marginTop: '1rem',
+                backgroundColor: '#2980b9',
+                color: 'white',
+                padding: '0.7rem 1.2rem',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: 'pointer',
+                marginLeft: '1rem'
+              }}
+            >
+              Commander
+            </button>
+            </div>
           <button
             onClick={handleClearCart}
             style={{
@@ -111,23 +126,5 @@ function buttonStyle(type: "+" | "-") {
     cursor: 'pointer'
   };
 }
-
-<button
-  onClick={() => {
-    window.location.href = "https://wa.link/k9v3iu";
-  }}
-  style={{
-    marginTop: '1rem',
-    backgroundColor: '#2980b9',
-    color: 'white',
-    padding: '0.7rem 1.2rem',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-    marginLeft: '1rem'
-  }}
->
-  Commander
-</button>
 
 export default CartPage;
