@@ -8,7 +8,10 @@ type Props = {
   onAddToCart: (item: MenuItem) => void;
 };
 
-const MenuPage: React.FC<Props> = ({ cartItems, setCartItems, onAddToCart }) => {
+const MenuPage: React.FC<Props> = ({ 
+  // cartItems, 
+  // setCartItems,
+   onAddToCart }) => {
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
 
   const groupedItems = menuItems.reduce((acc: { [key: string]: MenuItem[] }, item) => {
