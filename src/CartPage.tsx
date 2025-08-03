@@ -8,21 +8,23 @@ type Props = {
 
 const CartPage: React.FC<Props> = ({ cartItems, setCartItems }) => {
   const updateQuantity = (id: number, delta: number) => {
-    setCartItems(prev =>
-      prev
-        .map(item =>
-          item.id === id
-            ? { ...item, quantité: (item.quantité || 1) + delta }
-            : item
-        )
-        .filter(item => (item.quantité || 1) > 0)
-    );
+    const updatedCart = cartItems
+      .map(item =>
+        item.id === id
+          ? { ...item, quantité: (item.quantité || 1) + delta }
+          : item
+      )
+      .filter(item => (item.quantité || 1) > 0);
+
+    setCartItems(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart)); // 🔁 synchro
   };
 
   const handleClearCart = () => {
     const confirmed = window.confirm("Es-tu sûr de vouloir vider tout le panier ?");
     if (confirmed) {
       setCartItems([]);
+      localStorage.removeItem("cart"); // ❌ vide localStorage
     }
   };
 
