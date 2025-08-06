@@ -233,14 +233,14 @@
   font-size: large;
  }
 
- #root {
+ /* #root {
   box-sizing: border-box;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
-}
+} */
 
  .cartContent {
   display: flex;
