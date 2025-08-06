@@ -5,10 +5,10 @@ import './App.css';
 type Props = {
   cartItems: MenuItem[];
   setCartItems: React.Dispatch<React.SetStateAction<MenuItem[]>>;
-  tableNumber: string | null;
+  localisation: string | null; // Peut être table, chambre ou HP03
 };
 
-const CartPage: React.FC<Props> = ({ cartItems, setCartItems, tableNumber }) => {
+const CartPage: React.FC<Props> = ({ cartItems, setCartItems, localisation }) => {
   const updateQuantity = (id: number, delta: number) => {
     setCartItems(prev =>
       prev
@@ -40,9 +40,10 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, tableNumber }) => 
     const message = encodeURIComponent(
       `Bonjour, J'aimerais commander les articles suivants :\n\n` +
       cartItems.map(item =>
-      `- ${item.nom} x${item.quantité} (${item.prix})`).join("\n") +
+        `- ${item.nom} x${item.quantité} (${item.prix})`
+      ).join("\n") +
       `\n\nTotal: ${formatPrix(totalPrix)}\n` +
-      `\nTable : ${tableNumber || 'Non spécifiée'}`
+      `\nLocalisation : ${localisation || 'Non spécifiée'}`
     );
 
     const url = `https://wa.me/${phoneNumber}?text=${message}`;
@@ -126,17 +127,14 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, tableNumber }) => 
   );
 };
 
-// Convertit "5 000 FCFA" en 5000
 function parsePrix(prix: string): number {
   return parseInt(prix.replace(/[^\d]/g, ""), 10);
 }
 
-// Convertit 5000 en "5 000 FCFA"
 function formatPrix(valeur: number): string {
   return valeur.toLocaleString('fr-FR') + ' FCFA';
 }
 
-// Style pour les boutons + et -
 function buttonStyle(type: "+" | "-") {
   return {
     padding: '0.5rem 1rem',

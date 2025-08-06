@@ -1,8 +1,8 @@
 import './App.css';
 import MenuPage from './MenuPage.tsx';
-import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import CartPage from './CartPage';
+import { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import logo from './assets/WhatsApp Image 2025-07-29 à 14.49.18_44930011.jpg';
 import type { MenuItem } from './types.ts';
 import { menuItems } from './types.ts';
@@ -10,36 +10,45 @@ import { images } from './images.ts';
 
 function App() {
   const [cartItems, setCartItems] = useState<MenuItem[]>([]);
-  const [tableNumber, setTableNumber] = useState<string | null>(null);
+  const [table, setTable] = useState<string | null>(null); 
 
   // Charger le panier au démarrage
   useEffect(() => {
     const storedCart = localStorage.getItem('cart');
     if (storedCart) {
       const parsedCart: MenuItem[] = JSON.parse(storedCart);
-
       const updatedCart = parsedCart.map(item => {
         const match = menuItems.find(m => m.id === item.id);
         return match ? { ...match, quantité: item.quantité } : item;
       });
-
       setCartItems(updatedCart);
     }
   }, []);
 
-  // Sauvegarder dans localStorage à chaque changement
+  // Sauvegarder dans localStorage à chaque changement de panier
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
-  // Récupérer tableNumber directement dans App (une seule fois)
+  // Récupérer la localisation depuis les paramètres de l’URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const table = params.get("table");
-    setTableNumber(table);
+    const tableParam = params.get("table");
+    const chambreParam = params.get("chambre");
+    const hp03Param = params.get("HP03");
+
+    if (tableParam) {
+      setTable(`Table ${tableParam}`);
+    } else if (chambreParam) {
+      setTable(`Chambre ${chambreParam}`);
+    } else if (hp03Param !== null) {
+      setTable("HP03");
+    } else {
+      setTable(null); // Rien détecté
+    }
   }, []);
 
-  // Fonction d’ajout au panier
+  // ✅ Ajout au panier
   const handleAddToCart = (item: MenuItem) => {
     const existingItem = cartItems.find(i => i.id === item.id);
     if (existingItem) {
@@ -59,7 +68,9 @@ function App() {
           <img src={logo} alt="PH" />
           <h1>PAULINA HÔTEL</h1>
           <nav className='navbar'>
-            <Link className='menBtn' to="/" style={{ fontWeight: "bold", textDecoration: "none" }}>Menu</Link>
+            <Link className='menBtn' to="/" style={{ fontWeight: "bold", textDecoration: "none" }}>
+              Menu
+            </Link>
             <Link className='cartBtn' to="/panier" style={{ fontWeight: "bold", textDecoration: "none", color: "black" }}>
               <img src={images.cart} />
               <p>{cartItems.length}</p>
@@ -84,7 +95,7 @@ function App() {
               <CartPage
                 cartItems={cartItems}
                 setCartItems={setCartItems}
-                tableNumber={tableNumber}
+                localisation={table}            
               />
             }
           />
