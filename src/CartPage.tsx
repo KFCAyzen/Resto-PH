@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { MenuItem } from './types';
 import './App.css';
 
@@ -9,6 +9,9 @@ type Props = {
 };
 
 const CartPage: React.FC<Props> = ({ cartItems, setCartItems, localisation }) => {
+  const [nom, setNom] = useState('');
+  const [prenom, setPrenom] = useState('');
+
   const updateQuantity = (id: number, delta: number) => {
     setCartItems(prev =>
       prev
@@ -29,6 +32,11 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, localisation }) =>
     }
   };
 
+  const totalPrix = cartItems.reduce((acc, item) => {
+    const prix = parsePrix(item.prix);
+    return acc + prix * (item.quantité || 1);
+  }, 0);
+
   const handleCommander = () => {
     if (cartItems.length === 0) {
       alert("Ton panier est vide.");
@@ -38,22 +46,18 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, localisation }) =>
     const phoneNumber = "237657011948";
 
     const message = encodeURIComponent(
-      `Bonjour, J'aimerais commander les articles suivants :\n\n` +
+      `Bonjour, j'aimerais commander les articles suivants :\n\n` +
       cartItems.map(item =>
         `- ${item.nom} x${item.quantité} (${item.prix})`
       ).join("\n") +
-      `\n\nTotal: ${formatPrix(totalPrix)}\n` +
-      `\nLocalisation : ${localisation || 'Non spécifiée'}`
+      `\n\nTotal: ${formatPrix(totalPrix)}` +
+      `\nLocalisation : ${localisation || 'Non spécifiée'}` +
+      `\nNom : ${nom}\nPrénom : ${prenom}`
     );
 
     const url = `https://wa.me/${phoneNumber}?text=${message}`;
     window.open(url, "_blank");
   };
-
-  const totalPrix = cartItems.reduce((acc, item) => {
-    const prix = parsePrix(item.prix);
-    return acc + prix * (item.quantité || 1);
-  }, 0);
 
   return (
     <div className='cartContent'>
@@ -91,6 +95,24 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, localisation }) =>
 
           <hr />
           <h2>Total : {formatPrix(totalPrix)}</h2>
+
+          <div className="form">
+            <h2>Informations Client</h2>
+            <div className="inputs">
+              <input
+                type="text"
+                placeholder='Nom'
+                value={nom}
+                onChange={(e) => setNom(e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder='Prénom'
+                value={prenom}
+                onChange={(e) => setPrenom(e.target.value)}
+              />
+            </div>
+          </div>
 
           <div className='CartBtns' style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem' }}>
             <button
