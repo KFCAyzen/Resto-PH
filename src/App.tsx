@@ -1,15 +1,23 @@
 import './App.css';
 import MenuPage from './MenuPage.tsx';
-import  { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import CartPage from './CartPage';
 import logo from './assets/WhatsApp Image 2025-07-29 à 14.49.18_44930011.jpg';
 import type { MenuItem } from './types.ts';
 import { menuItems } from './types.ts';
 import { images } from './images.ts';
 
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
+
 function App() {
   const [cartItems, setCartItems] = useState<MenuItem[]>([]);
+
+  const query = useQuery();
+  const tableNumber = query.get("table");
 
   // Charger le panier au démarrage
   useEffect(() => {
@@ -29,7 +37,6 @@ function App() {
   // Sauvegarder dans localStorage à chaque changement
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cartItems));
-    console.log('Panier sauvegardé dans localStorage:', cartItems);
   }, [cartItems]);
 
   // Fonction d’ajout au panier
@@ -71,7 +78,7 @@ function App() {
             />
           }
         />
-        <Route path='/panier' element={<CartPage cartItems={cartItems} setCartItems={setCartItems} />} />
+        <Route path='/panier' element={<CartPage cartItems={cartItems} setCartItems={setCartItems} tableNumber = {tableNumber} />} />
       </Routes>
     </Router>
   );

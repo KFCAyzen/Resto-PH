@@ -5,9 +5,10 @@ import './App.css';
 type Props = {
   cartItems: MenuItem[];
   setCartItems: React.Dispatch<React.SetStateAction<MenuItem[]>>;
+  tableNumber: string | null;
 };
 
-const CartPage: React.FC<Props> = ({ cartItems, setCartItems }) => {
+const CartPage: React.FC<Props> = ({ cartItems, setCartItems, tableNumber }) => {
   const updateQuantity = (id: number, delta: number) => {
     setCartItems(prev =>
       prev
@@ -37,11 +38,11 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems }) => {
     const phoneNumber = "237657011948";
 
     const message = encodeURIComponent(
-      `Bonjour, J’aimerais commander les articles suivants :\n\n` +
+      `Bonjour, J'aimerais commander les articles suivants :\n\n` +
       cartItems.map(item =>
-        `- ${item.nom} x${item.quantité} (${item.prix})`
-      ).join("\n") +
-      `\n\nTotal: ${formatPrix(totalPrix)}`
+      `- ${item.nom} x${item.quantité} (${item.prix})`).join("\n") +
+      `\n\nTotal: ${formatPrix(totalPrix)}\n` +
+      `\nTable : ${tableNumber || 'Non spécifiée'}`
     );
 
     const url = `https://wa.me/${phoneNumber}?text=${message}`;
