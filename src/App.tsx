@@ -32,6 +32,13 @@ function App() {
     localStorage.setItem('cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
+  // Récupérer tableNumber directement dans App (une seule fois)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const table = params.get("table");
+    setTableNumber(table);
+  }, []);
+
   // Fonction d’ajout au panier
   const handleAddToCart = (item: MenuItem) => {
     const existingItem = cartItems.find(i => i.id === item.id);
@@ -45,16 +52,7 @@ function App() {
     }
   };
 
-  // Composant avec accès à l'URL
   function AppContent() {
-    const location = useLocation();
-    const query = new URLSearchParams(location.search);
-    const table = query.get("table");
-
-    useEffect(() => {
-      setTableNumber(table);
-    }, [table]);
-
     return (
       <>
         <div className='title'>
@@ -80,13 +78,16 @@ function App() {
               />
             }
           />
-          <Route path='/panier' element={
-            <CartPage
-              cartItems={cartItems}
-              setCartItems={setCartItems}
-              tableNumber={tableNumber}
-            />
-          } />
+          <Route
+            path='/panier'
+            element={
+              <CartPage
+                cartItems={cartItems}
+                setCartItems={setCartItems}
+                tableNumber={tableNumber}
+              />
+            }
+          />
         </Routes>
       </>
     );
