@@ -1,14 +1,20 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import type { MenuItem } from './types';
-import './App.css';
 
 type Props = {
   cartItems: MenuItem[];
   setCartItems: React.Dispatch<React.SetStateAction<MenuItem[]>>;
-  tableNumber: string | null;
 };
 
-const CartPage: React.FC<Props> = ({ cartItems, setCartItems, tableNumber }) => {
+const CartPage: React.FC<Props> = ({ cartItems, setCartItems }) => {
+  const [table, setTable] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tableParam = params.get("table");
+    setTable(tableParam);
+  }, []);
+
   const updateQuantity = (id: number, delta: number) => {
     setCartItems(prev =>
       prev
@@ -25,27 +31,31 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, tableNumber }) => 
     const confirmed = window.confirm("Es-tu sûr de vouloir vider tout le panier ?");
     if (confirmed) {
       setCartItems([]);
-      localStorage.removeItem("cart");
+      localStorage.removeItem('cart');
     }
   };
 
   const handleCommander = () => {
-    if (cartItems.length === 0) {
-      alert("Ton panier est vide.");
-      return;
-    }
+    const confirmed = window.confirm("Confirmer la commande ?");
+    if (!confirmed) return;
 
-    const phoneNumber = "237657011948";
+    const commandeText = cartItems.map(item =>
+      `- ${item.nom} x ${item.quantité} = ${formatPrix(parsePrix(item.prix) * (item.quantité || 1))}`
+    ).join("\n");
+
+    const total = formatPrix(cartItems.reduce((acc, item) => {
+      const prix = parsePrix(item.prix);
+      return acc + prix * (item.quantité || 1);
+    }, 0));
+
+    const tableInfo = table ? `\nTable : ${table}` : "\nTable : Non précisée";
 
     const message = encodeURIComponent(
-      `Bonjour, J'aimerais commander les articles suivants :\n\n` +
-      cartItems.map(item =>
-      `- ${item.nom} x${item.quantité} (${item.prix})`).join("\n") +
-      `\n\nTotal: ${formatPrix(totalPrix)}\n` +
-      `\nTable : ${tableNumber || 'Non spécifiée'}`
+      `Bonjour,\nJ’aimerais commander les articles suivants :\n\n${commandeText}\n\nTotal : ${total}${tableInfo}`
     );
 
-    const url = `https://wa.me/${phoneNumber}?text=${message}`;
+    const numeroWhatsApp = "237657011948"; // à adapter
+    const url = `https://wa.me/${numeroWhatsApp}?text=${message}`;
     window.open(url, "_blank");
   };
 
@@ -55,14 +65,18 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, tableNumber }) => 
   }, 0);
 
   return (
-    <div className='cartContent'>
-      <h1 className='hcart'>Votre Panier</h1>
+    <div style={{ padding: '2rem' }}>
+      <h1>Votre Panier</h1>
+
+      {table && (
+        <p style={{ fontWeight: 'bold' }}>Table n°{table}</p>
+      )}
 
       {cartItems.length === 0 ? (
         <p>Le panier est vide.</p>
       ) : (
         <div>
-          <ul className='itemList'>
+          <ul>
             {cartItems.map((item) => (
               <li key={item.id} style={{ marginBottom: '1rem' }}>
                 <div>
@@ -91,7 +105,22 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, tableNumber }) => 
           <hr />
           <h2>Total : {formatPrix(totalPrix)}</h2>
 
-          <div className='CartBtns' style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem' }}>
+          <div style={{ marginTop: '1rem' }}>
+            <button
+              onClick={handleCommander}
+              style={{
+                backgroundColor: '#2980b9',
+                color: 'white',
+                padding: '0.7rem 1.2rem',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: 'pointer',
+                marginRight: '1rem'
+              }}
+            >
+              Commander
+            </button>
+
             <button
               onClick={handleClearCart}
               style={{
@@ -105,20 +134,6 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, tableNumber }) => 
             >
               Vider le panier
             </button>
-
-            <button
-              onClick={handleCommander}
-              style={{
-                backgroundColor: '#27ae60',
-                color: 'white',
-                padding: '0.7rem 1.2rem',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer'
-              }}
-            >
-              Commander
-            </button>
           </div>
         </div>
       )}
@@ -126,17 +141,16 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, tableNumber }) => 
   );
 };
 
-// Convertit "5 000 FCFA" en 5000
+// change 5000 FCFA en 5000
 function parsePrix(prix: string): number {
   return parseInt(prix.replace(/[^\d]/g, ""), 10);
 }
 
-// Convertit 5000 en "5 000 FCFA"
+// change 5000 en 5000 FCFA
 function formatPrix(valeur: number): string {
   return valeur.toLocaleString('fr-FR') + ' FCFA';
 }
 
-// Style pour les boutons + et -
 function buttonStyle(type: "+" | "-") {
   return {
     padding: '0.5rem 1rem',
