@@ -4,6 +4,7 @@ import type { MenuItem } from './types';
 type Props = {
   cartItems: MenuItem[];
   setCartItems: React.Dispatch<React.SetStateAction<MenuItem[]>>;
+  tableNumber: string | null;
 };
 
 const CartPage: React.FC<Props> = ({ cartItems, setCartItems }) => {
