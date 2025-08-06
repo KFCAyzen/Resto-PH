@@ -45,11 +45,12 @@
  }
   
  .menBtn{
-  background-color: #7d3837;
-  padding: 10px 10px;
+  padding: 10px;
   border-radius: 10px;
-  color: #f7f7f7;
+  color: #7d3837;
   cursor: pointer;
+  font-weight: bold;
+  border: 1px solid #7d3837;
  }
 
  .cartBtn{
@@ -108,6 +109,9 @@
   padding-bottom: 15px;
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
   transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
  }
 
  .menuitem:hover{
@@ -125,6 +129,7 @@
  .menuitem h3{
   font-size: 18px;
   margin: 10px;
+  color: #7d3837;
  }
 
  .menuitem p{
@@ -166,6 +171,7 @@
   max-width: 400px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   z-index: 20;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
   animation: fadeIn 0.3s ease-in-out;
  }
 
@@ -183,11 +189,11 @@
 
  .close{
   margin-top: 15px;
-  background-color: #e63946;
-  color: white;
-  border: none;
+  background-color: white;
+  color: #7d3837;
   padding: 12px 15px;
   border-radius: 8px;
+  border: 2px solid #7d3837;
   cursor: pointer;
   font-weight: bold;
   transition: background-color 0.2s ease-in-out;
@@ -195,14 +201,19 @@
 
  .addBtn{
   margin-top: 15px;
-  background-color: black;
+  background-color: #7d3837;
   color: white;
-  border: none;
-  padding: 10px 15px;
+  padding: 15px 15px;
   border-radius: 8px;
   cursor: pointer;
+  border: none;
   font-weight: bold;
   transition: background-color 0.2s ease-in-out;
+ }
+
+ .modal h2, strong{
+  font-weight: 700;
+  color: #7d3837;
  }
 
  .modal img{
@@ -221,29 +232,29 @@
  .CartBtns button {
   font-size: large;
  }
- #root1 {
+
+ #root {
   box-sizing: border-box;
-  overflow-y: hidden;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
- }
+  min-height: 100vh;
+}
 
- .cartContent{
+ .cartContent {
   display: flex;
   flex-direction: column;
   background: rgba(196, 194, 194, 0.2); 
   backdrop-filter: blur(10px);          
-  border-radius: 12px;                  
-  backdrop-filter: blur(10px);
   border-radius: 15px;
   justify-content: center;
+  align-items: center; 
   padding: 20px;
   gap: 20px;
   width: 80%;
-  margin-top: 30px;
-  /* margin-right: 80px; */
- }
+  margin: 30px auto 0 auto; 
+}
 
  .cartContent h2, h1{
   text-align: center;

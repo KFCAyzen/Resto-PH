@@ -3,7 +3,7 @@ import MenuPage from './MenuPage.tsx';
 import CartPage from './CartPage';
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import logo from './assets/WhatsApp Image 2025-07-29 à 14.49.18_44930011.jpg';
+import logo from './assets/logo.jpg';
 import type { MenuItem } from './types.ts';
 import { menuItems } from './types.ts';
 import { images } from './images.ts';

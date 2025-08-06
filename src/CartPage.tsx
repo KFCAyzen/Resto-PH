@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { MenuItem } from './types';
 import './App.css';
+import './index.css'
 
 type Props = {
   cartItems: MenuItem[];
