@@ -69,22 +69,24 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, localisation }) =>
         <div>
           <ul className='itemList'>
             {cartItems.map((item) => (
-              <li key={item.id} style={{ marginBottom: '1rem' }}>
-                <div>
-                  <strong>{item.nom}</strong> - {item.prix} × {item.quantité} ={" "}
+              <li className='list' key={item.id} style={{ marginBottom: '1rem' }}>
+                <div className='itemName'>
+                  <strong>{item.nom}</strong> {item.prix} × {item.quantité} ={" "}
                   {formatPrix((item.quantité || 1) * parsePrix(item.prix))}
                 </div>
-                <div style={{ marginTop: '0.5rem' }}>
+                <div className='divQuant' style={{ marginTop: '1.5rem' }}>
                   <button
+                    className='reduce'
                     onClick={() => updateQuantity(item.id, -1)}
-                    style={buttonStyle("-")}
+                    // style={buttonStyle("-")}
                   >
                     -
                   </button>
                   <span style={{ margin: '0 1rem' }}>{item.quantité}</span>
                   <button
+                    className='adds'
                     onClick={() => updateQuantity(item.id, 1)}
-                    style={buttonStyle("+")}
+                    // style={buttonStyle("+")}
                   >
                     +
                   </button>
@@ -94,10 +96,11 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, localisation }) =>
           </ul>
 
           <hr />
-          <h2>Total : {formatPrix(totalPrix)}</h2>
+          <h2 className='price'>Total : {formatPrix(totalPrix)}</h2>
 
+          <hr />  
           <div className="form">
-            <h2>Informations Client</h2>
+            <h2 className='info'>Informations Client</h2>
             <div className="inputs">
               <input
                 type="text"
@@ -118,10 +121,10 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, localisation }) =>
             <button
               onClick={handleClearCart}
               style={{
-                backgroundColor: '#c0392b',
-                color: 'white',
+                backgroundColor: 'white',
+                color: '#7d3837',
                 padding: '0.7rem 1.2rem',
-                border: 'none',
+                border: '2px solid #7d3837',
                 borderRadius: '5px',
                 cursor: 'pointer'
               }}
@@ -132,7 +135,7 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, localisation }) =>
             <button
               onClick={handleCommander}
               style={{
-                backgroundColor: '#27ae60',
+                backgroundColor: '#7d3837',
                 color: 'white',
                 padding: '0.7rem 1.2rem',
                 border: 'none',
@@ -155,17 +158,6 @@ function parsePrix(prix: string): number {
 
 function formatPrix(valeur: number): string {
   return valeur.toLocaleString('fr-FR') + ' FCFA';
-}
-
-function buttonStyle(type: "+" | "-") {
-  return {
-    padding: '0.5rem 1rem',
-    backgroundColor: type === "+" ? '#4CAF50' : '#f44336',
-    color: 'white',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer'
-  };
 }
 
 export default CartPage;
