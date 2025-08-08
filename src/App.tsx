@@ -1,5 +1,6 @@
 import './App.css';
 import MenuPage from './MenuPage.tsx';
+import BoissonsPage from './BoissonsPage';
 import CartPage from './CartPage';
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
@@ -64,25 +65,75 @@ function App() {
   function AppContent() {
     return (
       <>
+        {/* Barre de titre */}
         <div className='title'>
           <img src={logo} alt="PH" />
           <h1>PAULINA HÔTEL</h1>
           <nav className='navbar'>
-            <Link className='menBtn' to="/" style={{ fontWeight: "bold", textDecoration: "none" }}>
-              Menu
-            </Link>
-            <Link className='cartBtn' to="/panier" style={{ fontWeight: "bold", textDecoration: "none", color: "black" }}>
-              <img src={images.cart} />
+            <Link
+              className='cartBtn'
+              to="/panier"
+              style={{ fontWeight: "bold", textDecoration: "none", color: "black" }}
+            >
+              <img src={images.cart} alt="Panier" />
               <p>{cartItems.length}</p>
             </Link>
           </nav>
         </div>
 
+        {/* Boutons Menu / Boissons sous la barre de titre */}
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', margin: '1rem 0' }}>
+          <Link
+            to="/"
+            style={{
+              padding: '0.6rem 1.2rem',
+              backgroundColor: '#7d3837',
+              color: 'white',
+              fontWeight: 'bold',
+              borderRadius: '5px',
+              textDecoration: 'none',
+              textAlign: 'center',
+              minWidth: '100px',
+              cursor: 'pointer',
+            }}
+          >
+            Menu
+          </Link>
+          <Link
+            to="/boissons"
+            style={{
+              padding: '0.6rem 1.2rem',
+              backgroundColor: '#7d3837',
+              color: 'white',
+              fontWeight: 'bold',
+              borderRadius: '5px',
+              textDecoration: 'none',
+              textAlign: 'center',
+              minWidth: '100px',
+              cursor: 'pointer',
+            }}
+          >
+            Boissons
+          </Link>
+        </div>
+
+        {/* Routes pour afficher les pages */}
         <Routes>
           <Route
             path='/'
             element={
               <MenuPage
+                items={menuItems}
+                cartItems={cartItems}
+                setCartItems={setCartItems}
+                onAddToCart={handleAddToCart}
+              />
+            }
+          />
+          <Route
+            path='/boissons'
+            element={
+              <BoissonsPage
                 cartItems={cartItems}
                 setCartItems={setCartItems}
                 onAddToCart={handleAddToCart}
@@ -95,7 +146,7 @@ function App() {
               <CartPage
                 cartItems={cartItems}
                 setCartItems={setCartItems}
-                localisation={table}            
+                localisation={table}
               />
             }
           />

@@ -1,20 +1,24 @@
 import React, { useState } from 'react';
 import type { MenuItem } from './types';
-import { menuItems } from './types';
 
 type Props = {
+  items: MenuItem[]; // La liste des produits à afficher
   cartItems: MenuItem[];
   setCartItems: React.Dispatch<React.SetStateAction<MenuItem[]>>;
   onAddToCart: (item: MenuItem) => void;
+  category?: string; // catégorie optionnelle pour filtrer l’affichage
 };
 
-const MenuPage: React.FC<Props> = ({ 
-  cartItems, 
-  setCartItems,
-   onAddToCart }) => {
+const MenuPage: React.FC<Props> = ({ items, cartItems, setCartItems, onAddToCart, category }) => {
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
 
-  const groupedItems = menuItems.reduce((acc: { [key: string]: MenuItem[] }, item) => {
+  // Filtrer les items selon la catégorie si elle est spécifiée
+  const filteredItems = category
+    ? items.filter(item => item.catégorie.map(c => c.toLowerCase()).includes(category.toLowerCase()))
+    : items;
+
+  // Regrouper les produits par catégorie (selon filteredItems)
+  const groupedItems = filteredItems.reduce((acc: { [key: string]: MenuItem[] }, item) => {
     item.catégorie.forEach((cat) => {
       if (!acc[cat]) acc[cat] = [];
       acc[cat].push(item);
