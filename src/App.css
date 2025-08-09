@@ -1,11 +1,10 @@
  .app {
   font-family: 'Segoe UI', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  padding: 10px;
-  margin: auto;
-  max-width: 1200px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  max-width: 100vw;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
  }
 
  .title{
@@ -84,6 +83,14 @@
 /* .hcart, .price, .info{
   color: rgb(250, 223, 105);
 } */
+
+ .no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 
 .clicked{
   background-color: #7d3837;

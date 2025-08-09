@@ -43,19 +43,36 @@ const MenuPage: React.FC<Props> = ({ items, cartItems, setCartItems, onAddToCart
 
   return (
     <div>
-      {/* --- Boutons de sélection de catégories --- */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
+      {/* --- Boutons de sélection de catégories avec scroll horizontal --- */}
+      <div
+        style={{
+          display: 'flex',
+          gap: '8px',
+          overflowX: 'auto',
+          padding: '8px 0',
+          whiteSpace: 'nowrap',
+          scrollbarWidth: 'none', // Firefox
+          msOverflowStyle: 'none', // IE/Edge
+          marginLeft: '10px',
+          // paddingLeft: '10px',
+          maxWidth: '94%'
+        }}
+        className="category-scroll"
+      >
         {categories.map(cat => (
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
             style={{
-              padding: '6px 10px',
-              borderRadius: '15px',
+              flexShrink: 0,
+              padding: '8px 12px',
+              fontSize: '14px',
+              borderRadius: '6px',
               border: selectedCategory === cat ? "none" : '1px solid #7d3837',
               backgroundColor: selectedCategory === cat ? '#7d3837' : '#fff',
               color: selectedCategory === cat ? 'white' : '#7d3837',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              whiteSpace: 'nowrap'
             }}
           >
             {cat}
@@ -108,6 +125,15 @@ const MenuPage: React.FC<Props> = ({ items, cartItems, setCartItems, onAddToCart
           </div>
         </>
       )}
+
+      {/* --- Styles pour cacher la scrollbar --- */}
+      <style>
+        {`
+          .category-scroll::-webkit-scrollbar {
+            display: none;
+          }
+        `}
+      </style>
     </div>
   );
 };
