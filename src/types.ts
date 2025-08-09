@@ -465,7 +465,7 @@ export const drinksItems: MenuItem[] = [
     id: 31,
     nom: "Black & White",
     prix: "15,000 FCFA",
-    image: images.black,
+    image: images.blackWhite,
     catégorie: ["Whiskys", "Produits Guinnes"],
   },
   {

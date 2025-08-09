@@ -49,7 +49,7 @@ function App() {
     }
   }, []);
 
-  // ✅ Ajout au panier
+  // Ajout au panier
   const handleAddToCart = (item: MenuItem) => {
     const existingItem = cartItems.find(i => i.id === item.id);
     if (existingItem) {

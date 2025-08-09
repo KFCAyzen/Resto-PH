@@ -11,14 +11,29 @@ type Props = {
 
 const MenuPage: React.FC<Props> = ({ items, cartItems, setCartItems, onAddToCart, category }) => {
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('Tout'); // Catégorie active
 
-  // Filtrer les items selon la catégorie si elle est spécifiée
-  const filteredItems = category
-    ? items.filter(item => item.catégorie.map(c => c.toLowerCase()).includes(category.toLowerCase()))
+  // --- Liste de toutes les catégories disponibles à partir des items ---
+  const allCategories = Array.from(new Set(items.flatMap(item => item.catégorie)));
+  const categories = ['Tout', ...allCategories];
+
+  // --- Filtrage de base si une catégorie est passée via les props ---
+  const initialFilteredItems = category
+    ? items.filter(item =>
+        item.catégorie.map(c => c.toLowerCase()).includes(category.toLowerCase())
+      )
     : items;
 
-  // Regrouper les produits par catégorie (selon filteredItems)
-  const groupedItems = filteredItems.reduce((acc: { [key: string]: MenuItem[] }, item) => {
+  // --- Application du filtre en fonction de la catégorie choisie via les boutons ---
+  const finalFilteredItems =
+    selectedCategory === 'Tout'
+      ? initialFilteredItems
+      : initialFilteredItems.filter(item =>
+          item.catégorie.includes(selectedCategory)
+        );
+
+  // --- Regrouper les produits par catégorie (selon finalFilteredItems) ---
+  const groupedItems = finalFilteredItems.reduce((acc: { [key: string]: MenuItem[] }, item) => {
     item.catégorie.forEach((cat) => {
       if (!acc[cat]) acc[cat] = [];
       acc[cat].push(item);
@@ -28,6 +43,27 @@ const MenuPage: React.FC<Props> = ({ items, cartItems, setCartItems, onAddToCart
 
   return (
     <div>
+      {/* --- Boutons de sélection de catégories --- */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
+        {categories.map(cat => (
+          <button
+            key={cat}
+            onClick={() => setSelectedCategory(cat)}
+            style={{
+              padding: '6px 10px',
+              borderRadius: '15px',
+              border: selectedCategory === cat ? "none" : '1px solid #7d3837',
+              backgroundColor: selectedCategory === cat ? '#7d3837' : '#fff',
+              color: selectedCategory === cat ? 'white' : '#7d3837',
+              cursor: 'pointer'
+            }}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      {/* --- Affichage des produits par catégorie --- */}
       {Object.entries(groupedItems).map(([catégorie, items]) => (
         <div key={catégorie} className='menu-section'>
           <h2 className='categorie-title'>{catégorie}</h2>
@@ -48,6 +84,7 @@ const MenuPage: React.FC<Props> = ({ items, cartItems, setCartItems, onAddToCart
         </div>
       ))}
 
+      {/* --- Fenêtre modale pour les détails du produit --- */}
       {selectedItem && (
         <>
           <div className="overlay" onClick={() => setSelectedItem(null)}></div>
