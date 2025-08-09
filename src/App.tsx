@@ -3,15 +3,18 @@ import MenuPage from './MenuPage.tsx';
 import BoissonsPage from './BoissonsPage';
 import CartPage from './CartPage';
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import logo from './assets/logo.jpg';
 import type { MenuItem } from './types.ts';
 import { menuItems } from './types.ts';
 import { images } from './images.ts';
 
-function App() {
+function AppContent() {
+  const location = useLocation();
+
   const [cartItems, setCartItems] = useState<MenuItem[]>([]);
-  const [table, setTable] = useState<string | null>(null); 
+  const [table, setTable] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>(''); // State pour la recherche
 
   // Charger le panier au démarrage
   useEffect(() => {
@@ -49,7 +52,7 @@ function App() {
     }
   }, []);
 
-  // Ajout au panier
+  // ✅ Ajout au panier
   const handleAddToCart = (item: MenuItem) => {
     const existingItem = cartItems.find(i => i.id === item.id);
     if (existingItem) {
@@ -62,99 +65,127 @@ function App() {
     }
   };
 
-  function AppContent() {
-    return (
-      <>
-        {/* Barre de titre */}
-        <div className='title'>
-          <img src={logo} alt="PH" />
-          <h1>PAULINA HÔTEL</h1>
-          <nav className='navbar'>
+  // Condition pour savoir si on est sur la page panier
+  const isCartPage = location.pathname === "/panier";
+
+  return (
+    <>
+      {/* Barre de titre */}
+      <div className='title'>
+        <img src={logo} alt="PH" />
+        <h1>PAULINA HÔTEL</h1>
+        <nav className='navbar'>
+          {/* Bouton Panier */}
+          <Link
+            className='cartBtn'
+            to="/panier"
+            style={{ fontWeight: "bold", textDecoration: "none", color: "black" }}
+          >
+            <img src={images.cart} alt="Panier" />
+            <p>{cartItems.length}</p>
+          </Link>
+        </nav>
+      </div>
+
+      {/* Afficher barre recherche + boutons menu/boissons uniquement si PAS sur la page panier */}
+      {!isCartPage && (
+        <>
+          {/* Barre de recherche */}
+          <div style={{ display: 'flex', justifyContent: 'center', margin: '1rem 0' }}>
+            <input
+              type="search"
+              placeholder="Rechercher un plat ou une boisson..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                padding: '0.6rem 1rem',
+                width: '95%',
+                borderRadius: '20px',
+                border: '1px solid #7d3837',
+                fontSize: '1rem',
+              }}
+            />
+          </div>
+
+          {/* Boutons Menu / Boissons */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem', gap: '10px' }}>
             <Link
-              className='cartBtn'
-              to="/panier"
-              style={{ fontWeight: "bold", textDecoration: "none", color: "black" }}
+              to="/"
+              style={{
+                padding: '0.6rem 1.2rem',
+                backgroundColor: '#7d3837',
+                color: 'white',
+                fontWeight: 'bold',
+                borderRadius: '5px',
+                textDecoration: 'none',
+                textAlign: 'center',
+                minWidth: '150px',
+                cursor: 'pointer',
+              }}
             >
-              <img src={images.cart} alt="Panier" />
-              <p>{cartItems.length}</p>
+              Menu
             </Link>
-          </nav>
-        </div>
+            <Link
+              to="/boissons"
+              style={{
+                padding: '0.6rem 1.2rem',
+                backgroundColor: '#7d3837',
+                color: 'white',
+                fontWeight: 'bold',
+                borderRadius: '5px',
+                textDecoration: 'none',
+                textAlign: 'center',
+                minWidth: '150px',
+                cursor: 'pointer',
+              }}
+            >
+              Boissons
+            </Link>
+          </div>
+        </>
+      )}
 
-        {/* Boutons Menu / Boissons sous la barre de titre */}
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', margin: '1rem 0' }}>
-          <Link
-            to="/"
-            style={{
-              padding: '0.6rem 1.2rem',
-              backgroundColor: '#7d3837',
-              color: 'white',
-              fontWeight: 'bold',
-              borderRadius: '5px',
-              textDecoration: 'none',
-              textAlign: 'center',
-              minWidth: '100px',
-              cursor: 'pointer',
-            }}
-          >
-            Menu
-          </Link>
-          <Link
-            to="/boissons"
-            style={{
-              padding: '0.6rem 1.2rem',
-              backgroundColor: '#7d3837',
-              color: 'white',
-              fontWeight: 'bold',
-              borderRadius: '5px',
-              textDecoration: 'none',
-              textAlign: 'center',
-              minWidth: '100px',
-              cursor: 'pointer',
-            }}
-          >
-            Boissons
-          </Link>
-        </div>
+      {/* Routes */}
+      <Routes>
+        <Route
+          path='/'
+          element={
+            <MenuPage
+              items={menuItems}
+              cartItems={cartItems}
+              setCartItems={setCartItems}
+              onAddToCart={handleAddToCart}
+              searchTerm={searchTerm}
+            />
+          }
+        />
+        <Route
+          path='/boissons'
+          element={
+            <BoissonsPage
+              cartItems={cartItems}
+              setCartItems={setCartItems}
+              onAddToCart={handleAddToCart}
+              searchTerm={searchTerm}
+            />
+          }
+        />
+        <Route
+          path='/panier'
+          element={
+            <CartPage
+              cartItems={cartItems}
+              setCartItems={setCartItems}
+              localisation={table}
+            />
+          }
+        />
+      </Routes>
+    </>
+  );
+}
 
-        {/* Routes pour afficher les pages */}
-        <Routes>
-          <Route
-            path='/'
-            element={
-              <MenuPage
-                items={menuItems}
-                cartItems={cartItems}
-                setCartItems={setCartItems}
-                onAddToCart={handleAddToCart}
-              />
-            }
-          />
-          <Route
-            path='/boissons'
-            element={
-              <BoissonsPage
-                cartItems={cartItems}
-                setCartItems={setCartItems}
-                onAddToCart={handleAddToCart}
-              />
-            }
-          />
-          <Route
-            path='/panier'
-            element={
-              <CartPage
-                cartItems={cartItems}
-                setCartItems={setCartItems}
-                localisation={table}
-              />
-            }
-          />
-        </Routes>
-      </>
-    );
-  }
-
+function App() {
   return (
     <Router>
       <AppContent />

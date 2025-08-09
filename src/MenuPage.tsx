@@ -7,9 +7,17 @@ type Props = {
   setCartItems: React.Dispatch<React.SetStateAction<MenuItem[]>>;
   onAddToCart: (item: MenuItem) => void;
   category?: string; // catégorie optionnelle pour filtrer l’affichage
+  searchTerm?: string; // terme de recherche optionnel
 };
 
-const MenuPage: React.FC<Props> = ({ items, cartItems, setCartItems, onAddToCart, category }) => {
+const MenuPage: React.FC<Props> = ({
+  items,
+  cartItems,
+  setCartItems,
+  onAddToCart,
+  category,
+  searchTerm = '',
+}) => {
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('Tout'); // Catégorie active
 
@@ -25,12 +33,17 @@ const MenuPage: React.FC<Props> = ({ items, cartItems, setCartItems, onAddToCart
     : items;
 
   // --- Application du filtre en fonction de la catégorie choisie via les boutons ---
+  // Et filtrage par recherche (searchTerm) insensible à la casse
   const finalFilteredItems =
     selectedCategory === 'Tout'
-      ? initialFilteredItems
-      : initialFilteredItems.filter(item =>
-          item.catégorie.includes(selectedCategory)
-        );
+      ? initialFilteredItems.filter(item =>
+          item.nom.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      : initialFilteredItems
+          .filter(item => item.catégorie.includes(selectedCategory))
+          .filter(item =>
+            item.nom.toLowerCase().includes(searchTerm.toLowerCase())
+          );
 
   // --- Regrouper les produits par catégorie (selon finalFilteredItems) ---
   const groupedItems = finalFilteredItems.reduce((acc: { [key: string]: MenuItem[] }, item) => {
@@ -43,36 +56,30 @@ const MenuPage: React.FC<Props> = ({ items, cartItems, setCartItems, onAddToCart
 
   return (
     <div>
-      {/* --- Boutons de sélection de catégories avec scroll horizontal --- */}
+      {/* --- Boutons de sélection de catégories --- */}
       <div
         style={{
           display: 'flex',
           gap: '8px',
+          marginBottom: '20px',
+          flexWrap: 'nowrap',
           overflowX: 'auto',
-          padding: '8px 0',
-          whiteSpace: 'nowrap',
-          scrollbarWidth: 'none', // Firefox
-          msOverflowStyle: 'none', // IE/Edge
-          marginLeft: '10px',
-          // paddingLeft: '10px',
-          maxWidth: '94%'
+          paddingBottom: '5px',
         }}
-        className="category-scroll"
       >
         {categories.map(cat => (
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
             style={{
-              flexShrink: 0,
-              padding: '8px 12px',
-              fontSize: '14px',
-              borderRadius: '6px',
+              padding: '6px 10px',
+              borderRadius: '15px',
               border: selectedCategory === cat ? "none" : '1px solid #7d3837',
               backgroundColor: selectedCategory === cat ? '#7d3837' : '#fff',
               color: selectedCategory === cat ? 'white' : '#7d3837',
               cursor: 'pointer',
-              whiteSpace: 'nowrap'
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
             }}
           >
             {cat}
@@ -125,15 +132,6 @@ const MenuPage: React.FC<Props> = ({ items, cartItems, setCartItems, onAddToCart
           </div>
         </>
       )}
-
-      {/* --- Styles pour cacher la scrollbar --- */}
-      <style>
-        {`
-          .category-scroll::-webkit-scrollbar {
-            display: none;
-          }
-        `}
-      </style>
     </div>
   );
 };

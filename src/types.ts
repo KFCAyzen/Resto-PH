@@ -70,7 +70,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 6,
-    nom: "Ndolé Viade",
+    nom: "Ndolé Viande",
     prix: "3000 FCFA",
     image: images.ndolé,
     description: "Feuilles d’oseille amère mijotées avec viande et pâte d’arachide.",
