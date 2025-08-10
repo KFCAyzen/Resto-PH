@@ -92,7 +92,6 @@ import xenergy from "./assets/3x-energy.jpeg";
 import export33 from "./assets/33-export-65-cl.jpg";
 import beaufort from "./assets/beaufort.jpeg";
 import light from "./assets/beaufort-light.jpeg";
-import booster from "./assets/booster.jpeg";
 import castel from "./assets/CASTEL-gMM.jpg";
 import chill from "./assets/chill.jpeg";
 import coca from "./assets/coca.jpeg";
@@ -121,8 +120,21 @@ import vanpurVanille from "./assets/vanpur-vanille.jpg";
 import vanpurCoffee from "./assets/vanpur-coffee.jpeg";
 import vody from "./assets/vody.webp";
 import topOrange from "./assets/top-orange.jpeg";
-import martiniBlanc from "./assets/martini-blanc.jpeg"
-import martiniRouge from "./assets/martini-rouge-15-100-cl.jpg"
+import martiniBlanc from "./assets/martini-blanc.jpeg";
+import martiniRouge from "./assets/martini-rouge-15-100-cl.jpg";
+import booster from "./assets/booster-new.jpeg";
+import elvino from "./assets/el-vino.jpg";
+import ginger from "./assets/zena-jus-de-gingembre-1l.jpg";
+import redbull from "./assets/redbull.webp";
+import bullet from "./assets/bullet.jpeg";
+import heineken from "./assets/heineken.jpg";
+import ceyssac from "./assets/ceyssac.jpeg";
+import bavaria from "./assets/bavaria.jpg";
+import yatch from "./assets/yatch.webp";
+import back from "./assets/icons8-arrière-100.png";
+import up from './assets/icons8-flèche-haut-100.png';
+import facebook from './assets/icons8-facebook-100.png';
+import tiktok from './assets/icons8-tiktok-50.png';
 
 export const images = {
     martiniBlanc,
@@ -249,5 +261,17 @@ export const images = {
     louisBlanc,
     cuivreBlanc,
     ballartBlanc,
-    calvet
+    calvet,
+    elvino,
+    ginger,
+    redbull,
+    bullet,
+    heineken,
+    ceyssac,
+    bavaria,
+    yatch,
+    back,
+    up,
+    facebook,
+    tiktok
 }

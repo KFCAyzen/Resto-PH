@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { MenuItem } from './types';
+import { images } from './images';
 
 type Props = {
   items: MenuItem[]; // La liste des produits à afficher
@@ -65,6 +66,8 @@ const MenuPage: React.FC<Props> = ({
           flexWrap: 'nowrap',
           overflowX: 'auto',
           paddingBottom: '5px',
+          width: '95%',
+          marginLeft: '10px',
         }}
       >
         {categories.map(cat => (
@@ -132,6 +135,27 @@ const MenuPage: React.FC<Props> = ({
           </div>
         </>
       )}
+      <div
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          display: 'flex',
+          // padding: '20px 20px',
+          // backgroundColor: '#7d3837',
+          // color: 'white',
+          border: 'none',
+          borderRadius: '30px',
+          cursor: 'pointer',
+          // fontSize: '28px',
+          fontWeight: '600',
+          zIndex: 1000,
+        }}
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+        <img src={images.up} style={{boxShadow: '0 2px 8px rgba(0,0,0,0.3)', 
+          borderRadius: '25px',
+          height: '50px'}} alt="" />
+      </div>
     </div>
   );
 };

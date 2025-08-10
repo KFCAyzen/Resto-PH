@@ -307,7 +307,8 @@
   padding: 20px;
   gap: 20px;
   width: 80%;
-  margin: 30px auto 0 auto; 
+  /* margin: 30px 80px 0 auto;  */
+  margin-top: 80px !important;
 }
 
  .cartContent h2, h1{
@@ -335,6 +336,10 @@
  ul{
   list-style: none;
  }
+
+ input, textarea, select {
+  font-size: 16px;
+}
 
  @keyframes fadeIn {
   from{

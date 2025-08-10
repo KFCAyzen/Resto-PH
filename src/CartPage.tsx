@@ -67,7 +67,7 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, localisation }) =>
 
   return (
     <div className="cartContent" style={{ maxWidth: "600px", margin: "0 auto" }}>
-      {/* Bouton retour */}
+      {/* Bouton retour
       <button
         onClick={() => navigate(-1)}
         style={{
@@ -81,7 +81,7 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, localisation }) =>
         }}
       >
         ← Retour
-      </button>
+      </button> */}
 
       <h1 className="hcart">Votre Panier</h1>
 
