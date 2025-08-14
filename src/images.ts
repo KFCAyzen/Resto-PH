@@ -31,7 +31,6 @@ import pommeViande from "./assets/pomme-viande.jpeg";
 import pilaf from "./assets/Riz-pilaf-au-Thermomix.jpg";
 import bouillon from "./assets/bouillon.jpeg";
 import eru from "./assets/eru.jpeg";
-import cart from "./assets/cart.png";
 import cuivre from "./assets/cuivre-rouge.jpeg";
 import cuivreBlanc from "./assets/cuivre-blanc.jpg";
 import cantelouBlanc from "./assets/cantelou.jpeg";
@@ -139,15 +138,29 @@ import phone from './assets/icons8-téléphone-50.png';
 import mail from './assets/icons8-nouveau-message-50.png';
 import loc from './assets/icons8-position-50.png';
 import whatsapp from './assets/icons8-whatsapp-50.png';
+import food from './assets/icons8-bar-alimentaire-50.png';
+import food2 from './assets/icons8-food-bar-50.png';
+import search from './assets/icons8-search-50.png';
+import glass from './assets/icons8-verre-à-vin-50.png';
+import glass1 from './assets/icons8-verre-à-vin2-50.png';
+import carts from './assets/icons8-shopping-cart-50.png';
+import carts1 from './assets/icons8-shopping-cart-50 (1).png';
+
 
 export const images = {
+    food,
+    food2,
+    search,
+    glass,
+    glass1,
+    carts,
+    carts1,
     whatsapp,
     loc,
     phone,
     mail,
     martiniBlanc,
     martiniRouge,
-    cart,
     bouillon,
     pouletBraisé,
     poissonBraisé,

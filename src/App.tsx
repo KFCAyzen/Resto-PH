@@ -1,9 +1,9 @@
-import './App.css';
+import './App.css';  
 import MenuPage from './MenuPage.tsx';
 import BoissonsPage from './BoissonsPage';
 import CartPage from './CartPage';
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import logo from './assets/logo.jpg';
 import type { MenuItem } from './types.ts';
 import { menuItems } from './types.ts';
@@ -11,13 +11,12 @@ import { images } from './images.ts';
 
 function AppContent() {
   const location = useLocation();
-  const navigate = useNavigate();
 
   const [cartItems, setCartItems] = useState<MenuItem[]>([]);
   const [table, setTable] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState<string>(''); // State pour la recherche
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
-  // Charger le panier au démarrage
+  // Charger le panier depuis localStorage au montage
   useEffect(() => {
     const storedCart = localStorage.getItem('cart');
     if (storedCart) {
@@ -30,12 +29,12 @@ function AppContent() {
     }
   }, []);
 
-  // Sauvegarder dans localStorage à chaque changement de panier
+  // Sauvegarder le panier dans localStorage à chaque changement
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
-  // Récupérer la localisation depuis les paramètres de l’URL
+  // Récupérer la localisation depuis les paramètres d'URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const tableParam = params.get("table");
@@ -49,11 +48,11 @@ function AppContent() {
     } else if (hp03Param !== null) {
       setTable("HP03");
     } else {
-      setTable(null); // Rien détecté
+      setTable(null);
     }
   }, []);
 
-  // Ajout au panier
+  // Ajout d'un plat/boisson au panier
   const handleAddToCart = (item: MenuItem) => {
     const existingItem = cartItems.find(i => i.id === item.id);
     if (existingItem) {
@@ -66,115 +65,34 @@ function AppContent() {
     }
   };
 
-  const isCartPage = location.pathname === "/panier";
-
   return (
     <>
-      {/* Barre de titre */}
+      {/* HEADER affiché sur toutes les pages */}
       <div className='title'>
-        {isCartPage ? (
-          <button
-            onClick={() => navigate(-1)}
-            style={{
-              padding: '8px 12px',
-              backgroundColor: 'rgba(255, 255, 255, 0.71)',
-              backdropFilter: 'blur(10px)',
-              borderBottom: '1px solid rgba(124, 124, 124, 0.71)',
-              color: '#7d3837',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: 'pointer',
-              fontSize: '1.5rem',
-              width: '100%',
-              position: 'absolute',
-              top: '2px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '80px',
-              fontWeight: '600'
-            }}
-          ><img src={images.back} alt="" />
-             Retour
-          </button>
-        ) : (
-          <>
-            <img src={logo} alt="PH" />
-            <h1>PAULINA HÔTEL</h1>
-          </>
-        )}
-
-        <nav className='navbar'>
-          {/* Bouton Panier caché sur page panier */}
-          {!isCartPage && (
-            <Link
-              className='cartBtn'
-              to="/panier"
-              style={{ fontWeight: "bold", textDecoration: "none", color: "black" }}
-            >
-              <img src={images.cart} alt="Panier" />
-              <p>{cartItems.length}</p>
-            </Link>
-          )}
-        </nav>
+        <img src={logo} alt="PH" />
+        <h1>PAULINA HÔTEL</h1>
       </div>
 
-      {/* Barre recherche + boutons menu/boissons uniquement si PAS sur la page panier */}
-      {!isCartPage && (
-        <>
-          <div style={{ display: 'flex', justifyContent: 'center', margin: '1rem 0' }}>
-            <input
-              type="search"
-              placeholder="Rechercher un plat ou une boisson..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                padding: '0.6rem 1rem',
-                width: '95%',
-                borderRadius: '20px',
-                border: '1px solid #7d3837',
-                fontSize: '1rem',
-              }}
-            />
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem', gap: '10px' }}>
-            <Link
-              to="/"
-              style={{
-                padding: '0.6rem 1.2rem',
-                backgroundColor: '#7d3837',
-                color: 'white',
-                fontWeight: 'bold',
-                borderRadius: '5px',
-                textDecoration: 'none',
-                textAlign: 'center',
-                minWidth: '150px',
-                cursor: 'pointer',
-              }}
-            >
-              Menu
-            </Link>
-            <Link
-              to="/boissons"
-              style={{
-                padding: '0.6rem 1.2rem',
-                backgroundColor: '#7d3837',
-                color: 'white',
-                fontWeight: 'bold',
-                borderRadius: '5px',
-                textDecoration: 'none',
-                textAlign: 'center',
-                minWidth: '150px',
-                cursor: 'pointer',
-              }}
-            >
-              Boissons
-            </Link>
-          </div>
-        </>
+      {/* Barre de recherche affichée sur toutes les pages sauf Panier */}
+      {location.pathname !== '/panier' && (
+        <div style={{ display: 'flex', justifyContent: 'center', margin: '1rem 0' }}>
+          <input
+            type="search"
+            placeholder="Rechercher un plat ou une boisson..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              padding: '0.6rem 1rem',
+              width: '95%',
+              borderRadius: '20px',
+              border: '1px solid #7d3837',
+              fontSize: '1rem',
+            }}
+          />
+        </div>
       )}
 
-      {/* Routes */}
+      {/* ROUTES */}
       <Routes>
         <Route
           path='/'
@@ -210,6 +128,62 @@ function AppContent() {
           }
         />
       </Routes>
+
+      {/* BOTTOM BAR */}
+      <nav
+        className="bottom-bar"
+        style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          width: '100%',
+          backgroundColor: 'rgba(255, 255, 255, 0.71)',
+          backdropFilter: 'blur(10px)',
+          borderTop: '1px solid #ddd',
+          display: 'flex',
+          justifyContent: 'space-around',
+          alignItems: 'center',
+          padding: '10px 0',
+          zIndex: 1000
+        }}>
+        <div className='menu'>
+          <Link to="/" style={{ textDecoration: 'none', color: 'black' }}> 
+            <img src={location.pathname === '/' ? images.food2 : images.food} alt="" /> 
+          </Link>
+        </div>
+        <div className="menu">
+          <Link to="/boissons" style={{ textDecoration: 'none', color: 'black' }}> 
+            <img src={location.pathname === '/boissons' ? images.glass1 : images.glass} alt="" />
+          </Link>
+        </div>
+        <div className="menu">
+          <Link
+              className='cartBtn'
+              to="/panier">
+              <img src={location.pathname === '/panier' ? images.carts1 : images.carts} alt="Panier" />
+              <p>{cartItems.length}</p>
+          </Link>
+        </div>
+      </nav>
+      { location.pathname !== '/panier' && (
+        <div
+        style={{
+          position: 'fixed',
+          bottom: '100px',
+          right: '20px',
+          display: 'flex',
+          border: 'none',
+          borderRadius: '30px',
+          cursor: 'pointer',
+          fontWeight: '600',
+          zIndex: 1000,
+        }}
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+        <img src={images.up} style={{boxShadow: '0 2px 8px rgba(0,0,0,0.3)', 
+          borderRadius: '25px',
+          height: '50px'}} alt="" />
+      </div>
+      )}
     </>
   );
 }

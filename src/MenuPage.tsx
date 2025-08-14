@@ -59,6 +59,7 @@ const MenuPage: React.FC<Props> = ({
     <div>
       {/* --- Boutons de sélection de catégories --- */}
       <div
+        className="scroll-container"
         style={{
           display: 'flex',
           gap: '8px',
@@ -68,8 +69,9 @@ const MenuPage: React.FC<Props> = ({
           paddingBottom: '5px',
           width: '95%',
           marginLeft: '10px',
-        }}
-      >
+          scrollbarWidth: 'none',      // Firefox
+          msOverflowStyle: 'none',     // IE 10+
+        }}>
         {categories.map(cat => (
           <button
             key={cat}
@@ -77,7 +79,7 @@ const MenuPage: React.FC<Props> = ({
             style={{
               padding: '6px 10px',
               borderRadius: '15px',
-              border: selectedCategory === cat ? "none" : '1px solid #7d3837',
+              border: selectedCategory === cat ? 'none' : '1px solid #7d3837',
               backgroundColor: selectedCategory === cat ? '#7d3837' : '#fff',
               color: selectedCategory === cat ? 'white' : '#7d3837',
               cursor: 'pointer',
@@ -88,7 +90,15 @@ const MenuPage: React.FC<Props> = ({
             {cat}
           </button>
         ))}
+
+        {/* CSS inline pour cacher la scrollbar sur Chrome, Safari, Opera */}
+        <style>{`
+          .scroll-container::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
       </div>
+
 
       {/* --- Affichage des produits par catégorie --- */}
       {Object.entries(groupedItems).map(([catégorie, items]) => (
@@ -135,27 +145,6 @@ const MenuPage: React.FC<Props> = ({
           </div>
         </>
       )}
-      <div
-        style={{
-          position: 'fixed',
-          bottom: '20px',
-          right: '20px',
-          display: 'flex',
-          // padding: '20px 20px',
-          // backgroundColor: '#7d3837',
-          // color: 'white',
-          border: 'none',
-          borderRadius: '30px',
-          cursor: 'pointer',
-          // fontSize: '28px',
-          fontWeight: '600',
-          zIndex: 1000,
-        }}
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-        <img src={images.up} style={{boxShadow: '0 2px 8px rgba(0,0,0,0.3)', 
-          borderRadius: '25px',
-          height: '50px'}} alt="" />
-      </div>
       <section className='footer'>
         <h2>Contactez nous</h2>
         <div className="tel">

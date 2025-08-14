@@ -39,7 +39,7 @@
   margin-left: 15px;
  }
 
- .navbar img{
+ .bottom-bar img{
   height: 40px;
  }
   
@@ -342,10 +342,10 @@
 }
 
 .footer{
-  /* display: flex; */
-  /* flex-direction: column;
-  align-items: center; */
-  padding: 10px 35px;
+  padding-top: 10px;
+  padding-bottom: 80px;
+  padding-left: 35px;
+  padding-right: 20px;
   background-color: #fadf69;
 }
 
@@ -389,7 +389,7 @@
 footer{
   text-align: center;
   font-size: 10px;
-  margin-top: 20px;
+  margin-top: 40px;
   color: #7d3837;
 }
 
