@@ -476,8 +476,15 @@ export const drinksItems: MenuItem[] = [
     catégorie: ["Whiskys"],
   },
   {
+    id: 91,
+    nom: "Yatch Club",
+    prix: "10,000 FCFA",
+    image: images.yatch,
+    catégorie: ["Whiskys"],
+  },
+  {
     id: 33,
-    nom: "1805",
+    nom: "WS 1805",
     prix: "10,000 FCFA",
     image: images.w1805,
     catégorie: ["Whiskys"],
@@ -675,7 +682,7 @@ export const drinksItems: MenuItem[] = [
     id: 58,
     nom: "Harp",
     prix: "1000 FCFA",
-    image: images.smooth,
+    image: images.harp,
     catégorie: ["Produits Guinnes"],
   },
   {
@@ -901,13 +908,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.ginger,
     catégorie: ["Jus Naturels"],
-  },
-  {
-    id: 91,
-    nom: "Yatch",
-    prix: "10,000 FCFA",
-    image: images.yatch,
-    catégorie: ["Whiskys"],
   },
   {
     id: 92,

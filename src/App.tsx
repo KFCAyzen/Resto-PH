@@ -98,7 +98,7 @@ function AppContent() {
           </button>
         ) : (
           <>
-            <img style={{height: '25px'}} src={logo} alt="PH" />
+            <img src={logo} alt="PH" />
             <h1>PAULINA HÔTEL</h1>
           </>
         )}

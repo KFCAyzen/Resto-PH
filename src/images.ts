@@ -45,26 +45,26 @@ import ballartBordeaux from "./assets/ballart-bordeaux.jpeg";
 import louisBlanc from "./assets/eschenauer-blanc.jpg";
 import louisRouge from "./assets/louis-eschenauer-rouge.jpg";
 import moscato from "./assets/moscato-d-asti-doc-blanc.jpg";
-import hugo from "./assets/Landhaus-Hugo-Rose-Frizzante-0.75L.jpg";
-import mia from "./assets/mia-rosé.jpeg";
+import hugo from "./assets/hugo-new.jpeg";
+import mia from "./assets/mia-rosé-new.jpeg";
 import antoine from "./assets/grand-antoine.jpeg";
 import chatron from "./assets/chartron-de-la-croix.jpeg";
 import merlot from "./assets/grand-sud-merlot.jpeg";
 import shiraz from "./assets/Shiraz_Cabernet.jpg";
 import rio from "./assets/Rio-Lindo-Syrah-2016-14.w610.h610.fill_.jpg";
 import castilla from "./assets/el-castilla.jpeg";
-import damati from "./assets/damati.jpg";
-import villalta from "./assets/villalta.webp";
+import damati from "./assets/damati-new.jpeg";
+import villalta from "./assets/villalta-amarone.jpg";
 import chianti from "./assets/chianti.jpeg";
 import vincent from "./assets/charles-vincent.jpeg";
 import ruinart from "./assets/ruinart-r-de-ruinard.webp";
-import pataNegra from "./assets/pata-negra.jpeg";
+import pataNegra from "./assets/pata-negra-new.webp";
 import imperialBlue from "./assets/imperial-blue_1.jpg";
 import black from "./assets/black.jpg";
 import ws from "./assets/WS-Blanc.jpg";
 import w1805 from "./assets/1805.jpg";
 import eperon from "./assets/eperon.jpg";
-import bagpiper from "./assets/bagpiper.jpg";
+import bagpiper from "./assets/bagpiper-new.webp";
 import blackWhite from "./assets/black&white.jpeg";
 import baileys from "./assets/baileys.jpeg";
 import jameson from "./assets/jameson.jpeg";
@@ -98,7 +98,7 @@ import coca from "./assets/coca.jpeg";
 import djino from "./assets/djino.jpeg";
 import doppel from "./assets/DOPPEL-MUNICH-1.jpg";
 import frutas from "./assets/frutas-1.jpg";
-import petiteGuinnes from "./assets/GUINNESS-1.jpg";
+import petiteGuinnes from "./assets/guinness-foreign.jpg";
 import harp from "./assets/harp.jpeg";
 import ice from "./assets/ice.jpeg";
 import isenbeck from "./assets/isenbeck.jpeg";
@@ -135,8 +135,16 @@ import back from "./assets/icons8-arrière-100.png";
 import up from './assets/icons8-flèche-haut-100.png';
 import facebook from './assets/icons8-facebook-100.png';
 import tiktok from './assets/icons8-tiktok-50.png';
+import phone from './assets/icons8-téléphone-50.png';
+import mail from './assets/icons8-nouveau-message-50.png';
+import loc from './assets/icons8-position-50.png';
+import whatsapp from './assets/icons8-whatsapp-50.png';
 
 export const images = {
+    whatsapp,
+    loc,
+    phone,
+    mail,
     martiniBlanc,
     martiniRouge,
     cart,

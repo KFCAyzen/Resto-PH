@@ -10,7 +10,7 @@
  .title{
   display: flex;
   justify-content: center;
-  gap: 20px;
+  gap: 35px;
   align-items: center;
   width: 100%;
   color: #7d3837;
@@ -25,8 +25,8 @@
   margin-top: 15px;
  }
  .title img{
-  height: 40px;
-  border-radius: 20px;
+  height: 50px;
+  border-radius: 25px;
  }
  .title h1{
   font-size: 20px;
@@ -339,6 +339,58 @@
 
  input, textarea, select {
   font-size: 16px;
+}
+
+.footer{
+  /* display: flex; */
+  /* flex-direction: column;
+  align-items: center; */
+  padding: 10px 35px;
+  background-color: #fadf69;
+}
+
+.footer h2{
+  color: #7d3837;
+}
+
+.loc, .tel, .mail{
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.loc img, .tel img, .mail img{
+  height: 20px;
+}
+
+.tel span{
+  font-size: 16px;
+}
+
+.num{
+  font-size: 15px;
+}
+
+.socials{
+  display: flex;
+  gap: 20px;
+  text-align: center;
+}
+
+.socials img{
+  height: 30px;
+}
+
+.socials p{
+  margin: 0;
+  font-size: 10px;
+}
+
+footer{
+  text-align: center;
+  font-size: 10px;
+  margin-top: 20px;
+  color: #7d3837;
 }
 
  @keyframes fadeIn {
