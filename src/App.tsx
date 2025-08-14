@@ -153,7 +153,7 @@ function AppContent() {
         </div>
         <div className="menu">
           <Link to="/boissons" style={{ textDecoration: 'none', color: 'black' }}> 
-            <img src={location.pathname === '/boissons' ? images.glass1 : images.glass} alt="" />
+            <img className='bois' src={location.pathname === '/boissons' ? images.glass1 : images.glass} alt="" />
           </Link>
         </div>
         <div className="menu">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { MenuItem } from './types';
 import { images } from './images';
 
@@ -19,7 +19,7 @@ const MenuPage: React.FC<Props> = ({
   category,
   searchTerm = '',
 }) => {
-  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null); // Item sélectionné pour le modal
   const [selectedCategory, setSelectedCategory] = useState<string>('Tout'); // Catégorie active
 
   // --- Liste de toutes les catégories disponibles à partir des items ---
@@ -55,6 +55,32 @@ const MenuPage: React.FC<Props> = ({
     return acc;
   }, {});
 
+  // --- Ref pour tous les items afin de gérer l'animation ---
+  const itemsRef = useRef<{ [key: string]: HTMLDivElement | null }>({});
+
+  // --- Effet IntersectionObserver pour animation au scroll ---
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = entry.target.getAttribute('data-index');
+            setTimeout(() => {
+              entry.target.classList.add('visible'); // Ajouter la classe visible quand l'élément entre dans le viewport
+            }, Number(index) * 100);
+            observer.unobserve(entry.target); // On stop l'observation après apparition
+          }
+        });
+      },
+      { threshold: 0.1 } // 10% visible pour déclencher
+    );
+
+    // Observer tous les items
+    Object.values(itemsRef.current).forEach(item => item && observer.observe(item));
+
+    return () => observer.disconnect();
+  }, [groupedItems]);
+
   return (
     <div>
       {/* --- Boutons de sélection de catégories --- */}
@@ -71,7 +97,8 @@ const MenuPage: React.FC<Props> = ({
           marginLeft: '10px',
           scrollbarWidth: 'none',      // Firefox
           msOverflowStyle: 'none',     // IE 10+
-        }}>
+        }}
+      >
         {categories.map(cat => (
           <button
             key={cat}
@@ -93,30 +120,34 @@ const MenuPage: React.FC<Props> = ({
 
         {/* CSS inline pour cacher la scrollbar sur Chrome, Safari, Opera */}
         <style>{`
-          .scroll-container::-webkit-scrollbar {
-            display: none;
-          }
+          .scroll-container::-webkit-scrollbar { display: none; }
         `}</style>
       </div>
-
 
       {/* --- Affichage des produits par catégorie --- */}
       {Object.entries(groupedItems).map(([catégorie, items]) => (
         <div key={catégorie} className='menu-section'>
           <h2 className='categorie-title'>{catégorie}</h2>
           <div className="menu-items">
-            {items.map((item) => (
-              <div
-                key={`${catégorie}-${item.id}`}
-                className='menuitem'
-                onClick={() => setSelectedItem(item)}
-                style={{ cursor: 'pointer' }}
-              >
-                <img src={item.image} alt={item.nom} />
-                <h3>{item.nom}</h3>
-                <p>{item.prix}</p>
-              </div>
-            ))}
+            {items.map((item, index) => {
+              const uniqueKey = `${catégorie}-${item.id}`;
+              return (
+                <div
+                  key={uniqueKey}
+                  ref={(el: HTMLDivElement | null) => {
+                    itemsRef.current[uniqueKey] = el; // Références uniques pour IntersectionObserver
+                  }}
+                  className='menuitem hidden' // Classe de base pour animation
+                  data-index={index} // Utilisé pour le stagger
+                  onClick={() => setSelectedItem(item)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <img src={item.image} alt={item.nom} />
+                  <h3>{item.nom}</h3>
+                  <p>{item.prix}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
       ))}
@@ -145,6 +176,8 @@ const MenuPage: React.FC<Props> = ({
           </div>
         </>
       )}
+
+      {/* --- Footer --- */}
       <section className='footer'>
         <h2>Contactez nous</h2>
         <div className="tel">

@@ -31,13 +31,6 @@
  .title h1{
   font-size: 20px;
  }
- .navbar{
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 2px 0px;
-  margin-left: 15px;
- }
 
  .bottom-bar img{
   height: 40px;
@@ -79,10 +72,6 @@
   display: flex;
   align-items: center;
 }
-
-/* .hcart, .price, .info{
-  color: rgb(250, 223, 105);
-} */
 
  .no-scrollbar::-webkit-scrollbar {
   display: none;
@@ -341,6 +330,14 @@
   font-size: 16px;
 }
 
+.menu img{
+  height: 30px;
+}
+
+.bois{
+  height: 25px !important;
+}
+
 .footer{
   padding-top: 10px;
   padding-bottom: 80px;
@@ -391,6 +388,20 @@ footer{
   font-size: 10px;
   margin-top: 40px;
   color: #7d3837;
+}
+
+.menuitem {
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.menuitem.hidden {
+  opacity: 0;
+  transform: translateY(50px);
+}
+
+.menuitem.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
  @keyframes fadeIn {
