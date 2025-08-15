@@ -182,7 +182,7 @@ const MenuPage: React.FC<Props> = ({
         <h2>Contactez nous</h2>
         <div className="tel">
           <img src={images.phone} alt="" />
-          <p className='num'><span>Téléphone:</span> (+237) 657 01 19 48 / 675 02 62 89</p>
+          <p className='num'><span>Téléphone:</span> +237 657 011 948 / 675 026 289</p>
         </div>
         <div className="mail">
           <img src={images.mail} alt="" />

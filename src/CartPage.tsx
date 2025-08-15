@@ -67,22 +67,6 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, localisation }) =>
 
   return (
     <div className="cartContent" style={{ maxWidth: "600px", margin: "0 auto" }}>
-      {/* Bouton retour
-      <button
-        onClick={() => navigate(-1)}
-        style={{
-          marginBottom: "10px",
-          padding: "8px 12px",
-          backgroundColor: "#007bff",
-          color: "white",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
-        }}
-      >
-        ← Retour
-      </button> */}
-
       <h1 className="hcart">Votre Panier</h1>
 
       {cartItems.length === 0 ? (
@@ -115,7 +99,6 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, localisation }) =>
             ))}
           </ul>
 
-          <hr />
           <h2 className="price">Total : {formatPrix(totalPrix)}</h2>
 
           {/* Formulaire client */}
