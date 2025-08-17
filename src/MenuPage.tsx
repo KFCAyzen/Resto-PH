@@ -3,12 +3,12 @@ import type { MenuItem } from './types';
 import { images } from './images';
 
 type Props = {
-  items: MenuItem[]; // La liste des produits à afficher
+  items: MenuItem[];
   cartItems: MenuItem[];
   setCartItems: React.Dispatch<React.SetStateAction<MenuItem[]>>;
   onAddToCart: (item: MenuItem) => void;
-  category?: string; // catégorie optionnelle pour filtrer l’affichage
-  searchTerm?: string; // terme de recherche optionnel
+  category?: string;
+  searchTerm?: string;
 };
 
 const MenuPage: React.FC<Props> = ({
@@ -19,22 +19,27 @@ const MenuPage: React.FC<Props> = ({
   category,
   searchTerm = '',
 }) => {
-  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null); // Item sélectionné pour le modal
-  const [selectedCategory, setSelectedCategory] = useState<string>('Tout'); // Catégorie active
+  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('Tout');
+  const [loading, setLoading] = useState(true); // 👈 état loading
 
-  // --- Liste de toutes les catégories disponibles à partir des items ---
+  // --- Simuler chargement ---
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1200); // 1.2s de chargement
+    return () => clearTimeout(timer);
+  }, []);
+
   const allCategories = Array.from(new Set(items.flatMap(item => item.catégorie)));
   const categories = ['Tout', ...allCategories];
 
-  // --- Filtrage de base si une catégorie est passée via les props ---
   const initialFilteredItems = category
     ? items.filter(item =>
         item.catégorie.map(c => c.toLowerCase()).includes(category.toLowerCase())
       )
     : items;
 
-  // --- Application du filtre en fonction de la catégorie choisie via les boutons ---
-  // Et filtrage par recherche (searchTerm) insensible à la casse
   const finalFilteredItems =
     selectedCategory === 'Tout'
       ? initialFilteredItems.filter(item =>
@@ -46,7 +51,6 @@ const MenuPage: React.FC<Props> = ({
             item.nom.toLowerCase().includes(searchTerm.toLowerCase())
           );
 
-  // --- Regrouper les produits par catégorie (selon finalFilteredItems) ---
   const groupedItems = finalFilteredItems.reduce((acc: { [key: string]: MenuItem[] }, item) => {
     item.catégorie.forEach((cat) => {
       if (!acc[cat]) acc[cat] = [];
@@ -55,10 +59,8 @@ const MenuPage: React.FC<Props> = ({
     return acc;
   }, {});
 
-  // --- Ref pour tous les items afin de gérer l'animation ---
   const itemsRef = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
-  // --- Effet IntersectionObserver pour animation au scroll ---
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -66,16 +68,15 @@ const MenuPage: React.FC<Props> = ({
           if (entry.isIntersecting) {
             const index = entry.target.getAttribute('data-index');
             setTimeout(() => {
-              entry.target.classList.add('visible'); // Ajouter la classe visible quand l'élément entre dans le viewport
+              entry.target.classList.add('visible');
             }, Number(index) * 100);
-            observer.unobserve(entry.target); // On stop l'observation après apparition
+            observer.unobserve(entry.target);
           }
         });
       },
-      { threshold: 0.1 } // 10% visible pour déclencher
+      { threshold: 0.1 }
     );
 
-    // Observer tous les items
     Object.values(itemsRef.current).forEach(item => item && observer.observe(item));
 
     return () => observer.disconnect();
@@ -95,8 +96,8 @@ const MenuPage: React.FC<Props> = ({
           paddingBottom: '5px',
           width: '95%',
           marginLeft: '10px',
-          scrollbarWidth: 'none',      // Firefox
-          msOverflowStyle: 'none',     // IE 10+
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
         }}
       >
         {categories.map(cat => (
@@ -117,42 +118,52 @@ const MenuPage: React.FC<Props> = ({
             {cat}
           </button>
         ))}
-
-        {/* CSS inline pour cacher la scrollbar sur Chrome, Safari, Opera */}
         <style>{`
           .scroll-container::-webkit-scrollbar { display: none; }
         `}</style>
       </div>
 
-      {/* --- Affichage des produits par catégorie --- */}
-      {Object.entries(groupedItems).map(([catégorie, items]) => (
-        <div key={catégorie} className='menu-section'>
-          <h2 className='categorie-title'>{catégorie}</h2>
-          <div className="menu-items">
-            {items.map((item, index) => {
-              const uniqueKey = `${catégorie}-${item.id}`;
-              return (
-                <div
-                  key={uniqueKey}
-                  ref={(el: HTMLDivElement | null) => {
-                    itemsRef.current[uniqueKey] = el; // Références uniques pour IntersectionObserver
-                  }}
-                  className='menuitem hidden' // Classe de base pour animation
-                  data-index={index} // Utilisé pour le stagger
-                  onClick={() => setSelectedItem(item)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <img src={item.image} alt={item.nom} />
-                  <h3>{item.nom}</h3>
-                  <p>{item.prix}</p>
-                </div>
-              );
-            })}
-          </div>
+      {/* --- Skeleton ou Produits --- */}
+      {loading ? (
+        <div className="skeleton-container">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="skeleton-card">
+              <div className="skeleton-img"></div>
+              <div className="skeleton-text short"></div>
+              <div className="skeleton-text"></div>
+            </div>
+          ))}
         </div>
-      ))}
+      ) : (
+        Object.entries(groupedItems).map(([catégorie, items]) => (
+          <div key={catégorie} className='menu-section'>
+            <h2 className='categorie-title'>{catégorie}</h2>
+            <div className="menu-items">
+              {items.map((item, index) => {
+                const uniqueKey = `${catégorie}-${item.id}`;
+                return (
+                  <div
+                    key={uniqueKey}
+                    ref={(el: HTMLDivElement | null) => {
+                      itemsRef.current[uniqueKey] = el;
+                    }}
+                    className='menuitem hidden'
+                    data-index={index}
+                    onClick={() => setSelectedItem(item)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <img src={item.image} alt={item.nom} />
+                    <h3>{item.nom}</h3>
+                    <p>{item.prix}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))
+      )}
 
-      {/* --- Fenêtre modale pour les détails du produit --- */}
+      {/* --- Modal --- */}
       {selectedItem && (
         <>
           <div className="overlay" onClick={() => setSelectedItem(null)}></div>
