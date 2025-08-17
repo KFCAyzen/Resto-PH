@@ -329,6 +329,7 @@
  .delete-item{
   border: none;
   margin-left: 10px;
+  background: none;
  }
 
  .delete-item img{
