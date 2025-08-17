@@ -145,9 +145,14 @@ import glass from './assets/icons8-verre-à-vin-50.png';
 import glass1 from './assets/icons8-verre-à-vin2-50.png';
 import carts from './assets/icons8-shopping-cart-50.png';
 import carts1 from './assets/icons8-shopping-cart-50 (1).png';
-
+import trash from './assets/icons8-poubelle-64.png';
+import reaktor from './assets/reaktor.jpg';
+import fanta from './assets/fanta.jpg';
 
 export const images = {
+    fanta,
+    reaktor,
+    trash,
     food,
     food2,
     search,

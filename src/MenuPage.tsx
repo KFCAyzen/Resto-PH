@@ -21,7 +21,7 @@ const MenuPage: React.FC<Props> = ({
 }) => {
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('Tout');
-  const [loading, setLoading] = useState(true); // 👈 état loading
+  const [loading, setLoading] = useState(true); // état loading
 
   // --- Simuler chargement ---
   useEffect(() => {

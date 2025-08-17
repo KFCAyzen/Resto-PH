@@ -944,5 +944,19 @@ export const drinksItems: MenuItem[] = [
     image: images.bullet,
     catégorie: ["Vodka"],
   },
+  {
+    id: 97,
+    nom: "Reaktor",
+    prix: "1000 FCFA",
+    image: images.reaktor,
+    catégorie: ["Boisson Energétique"],
+  },
+  {
+    id: 96,
+    nom: "Fanta",
+    prix: "1000 FCFA",
+    image: images.fanta,
+    catégorie: ["Boissons Gazeuse"],
+  },
 
 ];

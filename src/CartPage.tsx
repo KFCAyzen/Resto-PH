@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState } from "react"; 
 import type { MenuItem } from "./types";
 import { useNavigate } from "react-router-dom";
 import "./App.css";
+import { images } from "./images";
 
 type Props = {
   cartItems: MenuItem[];
@@ -13,6 +14,7 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, localisation }) =>
   const navigate = useNavigate();
   const [nom, setNom] = useState("");
   const [prenom, setPrenom] = useState("");
+  const [removingItemId, setRemovingItemId] = useState<string | null>(null);
 
   // Mettre à jour la quantité
   const updateQuantity = (id: number, delta: number) => {
@@ -25,6 +27,21 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, localisation }) =>
         )
         .filter((item) => (item.quantité || 1) > 0)
     );
+  };
+
+  // Supprimer un item avec fade-out
+  const handleRemoveItem = (itemToRemove: MenuItem) => {
+    const uniqueId = `${itemToRemove.id}-${itemToRemove.prix}`;
+    setRemovingItemId(uniqueId);
+
+    setTimeout(() => {
+      setCartItems((prev) =>
+        prev.filter(
+          (item) => !(item.id === itemToRemove.id && item.prix === itemToRemove.prix)
+        )
+      );
+      setRemovingItemId(null);
+    }, 300); // Durée du fade-out
   };
 
   // Vider le panier
@@ -52,10 +69,7 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, localisation }) =>
     const message = encodeURIComponent(
       `Bonjour, j'aimerais commander les articles suivants :\n\n` +
         cartItems
-          .map(
-            (item) =>
-              `- ${item.nom} x${item.quantité} (${item.prix})`
-          )
+          .map((item) => `- ${item.nom} x${item.quantité} (${item.prix})`)
           .join("\n") +
         `\n\nTotal: ${formatPrix(totalPrix)}` +
         `\nLocalisation : ${localisation || "Non spécifiée"}` +
@@ -74,29 +88,39 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, localisation }) =>
       ) : (
         <>
           <ul className="itemList">
-            {cartItems.map((item) => (
-              <li className="list" key={item.id} style={{ marginBottom: "1rem" }}>
-                <div className="itemName">
-                  <strong>{item.nom}</strong> {item.prix} × {item.quantité} ={" "}
-                  {formatPrix((item.quantité || 1) * parsePrix(item.prix))}
-                </div>
-                <div className="divQuant" style={{ marginTop: "1.5rem" }}>
-                  <button
-                    className="reduce"
-                    onClick={() => updateQuantity(item.id, -1)}
-                  >
-                    -
-                  </button>
-                  <span style={{ margin: "0 1rem" }}>{item.quantité}</span>
-                  <button
-                    className="adds"
-                    onClick={() => updateQuantity(item.id, 1)}
-                  >
-                    +
-                  </button>
-                </div>
-              </li>
-            ))}
+            {cartItems.map((item) => {
+              const uniqueId = `${item.id}-${item.prix}`;
+              const isRemoving = removingItemId === uniqueId;
+
+              return (
+                <li
+                  className={`list ${isRemoving ? "fade-out" : ""}`}
+                  key={uniqueId}
+                  style={{
+                    marginBottom: "1rem",
+                    transition: "opacity 0.3s, transform 0.3s",
+                    opacity: isRemoving ? 0 : 1,
+                    transform: isRemoving ? "translateX(50px)" : "translateX(0)",
+                  }}
+                >
+                  <div className="itemName">
+                    <strong>{item.nom}</strong> {item.prix} × {item.quantité} ={" "}
+                    {formatPrix((item.quantité || 1) * parsePrix(item.prix))}
+                  </div>
+                  <div className="divQuant" style={{ marginTop: "1.5rem", display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                    <button className="reduce" onClick={() => updateQuantity(item.id, -1)}>-</button>
+                    <span>{item.quantité}</span>
+                    <button className="adds" onClick={() => updateQuantity(item.id, 1)}>+</button>
+                    <button
+                      className="delete-item"
+                      onClick={() => handleRemoveItem(item)}
+                    >
+                      <img src={images.trash} alt="" />
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
 
           <h2 className="price">Total : {formatPrix(totalPrix)}</h2>
