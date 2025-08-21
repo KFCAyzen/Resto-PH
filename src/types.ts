@@ -673,7 +673,7 @@ export const drinksItems: MenuItem[] = [
   {
     id: 56,
     nom: "Grande Guinnes",
-    prix: "1500 FCFA",
+    prix: "2000 FCFA",
     image: images.petiteGuinnes,
     catégorie: ["Produits Guinnes"],
   },
@@ -939,7 +939,7 @@ export const drinksItems: MenuItem[] = [
   {
     id: 95,
     nom: "Redbull",
-    prix: "1000 FCFA",
+    prix: "1500 FCFA",
     image: images.redbull,
     catégorie: ["Boissons Energétique"],
   },
