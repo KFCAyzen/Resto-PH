@@ -11,69 +11,73 @@ import { images } from './images.ts';
 
 function AppContent() {
   const location = useLocation();
-
   const [cartItems, setCartItems] = useState<MenuItem[]>([]);
   const [table, setTable] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
 
-  // Charger le panier depuis localStorage au montage
+  // Charger le panier depuis localStorage
   useEffect(() => {
     const storedCart = localStorage.getItem('cart');
     if (storedCart) {
-      const parsedCart: MenuItem[] = JSON.parse(storedCart);
-      const updatedCart = parsedCart.map(item => {
-        const match = menuItems.find(m => m.id === item.id);
-        return match ? { ...match, quantité: item.quantité } : item;
-      });
-      setCartItems(updatedCart);
+      setCartItems(JSON.parse(storedCart));
     }
   }, []);
 
-  // Sauvegarder le panier dans localStorage à chaque changement
+  // Sauvegarder le panier à chaque changement
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
-  // Récupérer la localisation depuis les paramètres d'URL
+  // Récupérer la localisation depuis l'URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const tableParam = params.get("table");
     const chambreParam = params.get("chambre");
     const hp03Param = params.get("HP03");
 
-    if (tableParam) {
-      setTable(`Table ${tableParam}`);
-    } else if (chambreParam) {
-      setTable(`Chambre ${chambreParam}`);
-    } else if (hp03Param !== null) {
-      setTable("HP03");
-    } else {
-      setTable(null);
-    }
+    if (tableParam) setTable(`Table ${tableParam}`);
+    else if (chambreParam) setTable(`Chambre ${chambreParam}`);
+    else if (hp03Param !== null) setTable("HP03");
+    else setTable(null);
   }, []);
 
-  // Ajout d'un plat/boisson au panier
+  // Fonction pour convertir le prix en string
+  const prixToString = (prix: string | { label: string; value: string; selected?: boolean }[] ): string => {
+    if (typeof prix === 'string') return prix;
+    if (Array.isArray(prix)) {
+      const selected = prix.find(p => p.selected);
+      return selected ? selected.value : prix[0].value;
+    }
+    return "";
+  };
+
+  // Ajouter au panier
   const handleAddToCart = (item: MenuItem) => {
-    const existingItem = cartItems.find(i => i.id === item.id);
+    const prixStr = prixToString(item.prix);
+    const uniqueKey = `${item.id}-${prixStr}`;
+
+    const existingItem = cartItems.find(i => `${i.id}-${prixToString(i.prix)}` === uniqueKey);
+
     if (existingItem) {
-      const updatedCart = cartItems.map(i =>
-        i.id === item.id ? { ...i, quantité: (i.quantité ?? 0) + 1 } : i
-      );
-      setCartItems(updatedCart);
+      setCartItems(cartItems.map(i =>
+        `${i.id}-${prixToString(i.prix)}` === uniqueKey
+          ? { ...i, quantité: (i.quantité ?? 0) + 1 }
+          : i
+      ));
     } else {
-      setCartItems([...cartItems, { ...item, quantité: 1 }]);
+      setCartItems([...cartItems, { ...item, prix: prixStr, quantité: 1 }]);
     }
   };
 
   return (
     <>
-      {/* HEADER affiché sur toutes les pages */}
+      {/* HEADER */}
       <div className='title'>
         <img src={logo} alt="PH" />
         <h1>PAULINA HÔTEL</h1>
       </div>
 
-      {/* Barre de recherche affichée sur toutes les pages sauf Panier */}
+      {/* Barre de recherche */}
       {location.pathname !== '/panier' && (
         <div style={{ display: 'flex', justifyContent: 'center', margin: '1rem 0' }}>
           <input
@@ -130,22 +134,12 @@ function AppContent() {
       </Routes>
 
       {/* BOTTOM BAR */}
-      <nav
-        className="bottom-bar"
-        style={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          width: '100%',
-          backgroundColor: 'rgba(255, 255, 255, 0.71)',
-          backdropFilter: 'blur(10px)',
-          borderTop: '1px solid #ddd',
-          display: 'flex',
-          justifyContent: 'space-around',
-          alignItems: 'center',
-          padding: '10px 0',
-          zIndex: 1000
-        }}>
+      <nav className="bottom-bar" style={{
+        position: 'fixed', bottom: 0, left: 0, width: '100%',
+        backgroundColor: 'rgba(255, 255, 255, 0.71)', backdropFilter: 'blur(10px)',
+        borderTop: '1px solid #ddd', display: 'flex', justifyContent: 'space-around',
+        alignItems: 'center', padding: '10px 0', zIndex: 1000
+      }}>
         <div className='menu'>
           <Link to="/" style={{ textDecoration: 'none', color: 'black' }}> 
             <img src={location.pathname === '/' ? images.food2 : images.food} alt="" /> 
@@ -157,32 +151,34 @@ function AppContent() {
           </Link>
         </div>
         <div className="menu">
-          <Link
-              className='cartBtn'
-              to="/panier">
-              <img src={location.pathname === '/panier' ? images.carts1 : images.carts} alt="Panier" />
-              <p>{cartItems.length}</p>
+          <Link className='cartBtn' to="/panier">
+            <img src={location.pathname === '/panier' ? images.carts1 : images.carts} alt="Panier" />
+            <p>{cartItems.length}</p>
           </Link>
         </div>
       </nav>
-      { location.pathname !== '/panier' && (
+
+      {location.pathname !== '/panier' && (
         <div
-        style={{
-          position: 'fixed',
-          bottom: '100px',
-          right: '20px',
-          display: 'flex',
-          border: 'none',
-          borderRadius: '30px',
-          cursor: 'pointer',
-          fontWeight: '600',
-          zIndex: 1000,
-        }}
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-        <img src={images.up} style={{boxShadow: '0 2px 8px rgba(0,0,0,0.3)', 
-          borderRadius: '25px',
-          height: '50px'}} alt="" />
-      </div>
+          style={{
+            position: 'fixed',
+            bottom: '100px',
+            right: '20px',
+            display: 'flex',
+            border: 'none',
+            borderRadius: '30px',
+            cursor: 'pointer',
+            fontWeight: '600',
+            zIndex: 1000,
+          }}
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        >
+          <img src={images.up} style={{
+            boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+            borderRadius: '25px',
+            height: '50px'
+          }} alt="" />
+        </div>
       )}
     </>
   );

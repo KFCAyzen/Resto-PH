@@ -7,7 +7,7 @@ import { images } from "./images";
 type Props = {
   cartItems: MenuItem[];
   setCartItems: React.Dispatch<React.SetStateAction<MenuItem[]>>;
-  localisation: string | null; // table, chambre ou HP03
+  localisation: string | null;
 };
 
 const CartPage: React.FC<Props> = ({ cartItems, setCartItems, localisation }) => {
@@ -16,32 +16,49 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, localisation }) =>
   const [prenom, setPrenom] = useState("");
   const [removingItemId, setRemovingItemId] = useState<string | null>(null);
 
+  // Récupère le prix réel d'un item (string ou tableau)
+  const getPrixString = (item: MenuItem) => {
+    if (typeof item.prix === "string") return item.prix;
+    if (Array.isArray(item.prix)) {
+      const selected = item.prix.find(p => p.selected) || item.prix[0];
+      return selected.value;
+    }
+    return "";
+  };
+
+  const getPrixLabel = (item: MenuItem) => {
+    if (typeof item.prix === "string") return item.prix;
+    if (Array.isArray(item.prix)) {
+      const selected = item.prix.find(p => p.selected) || item.prix[0];
+      return selected.label;
+    }
+    return "";
+  };
+
   // Mettre à jour la quantité
-  const updateQuantity = (id: number, delta: number) => {
-    setCartItems((prev) =>
+  const updateQuantity = (item: MenuItem, delta: number) => {
+    setCartItems(prev =>
       prev
-        .map((item) =>
-          item.id === id
-            ? { ...item, quantité: (item.quantité || 1) + delta }
-            : item
+        .map(i =>
+          i.id === item.id && getPrixString(i) === getPrixString(item)
+            ? { ...i, quantité: (i.quantité || 1) + delta }
+            : i
         )
-        .filter((item) => (item.quantité || 1) > 0)
+        .filter(i => (i.quantité || 1) > 0)
     );
   };
 
   // Supprimer un item avec fade-out
-  const handleRemoveItem = (itemToRemove: MenuItem) => {
-    const uniqueId = `${itemToRemove.id}-${itemToRemove.prix}`;
+  const handleRemoveItem = (item: MenuItem) => {
+    const uniqueId = `${item.id}-${getPrixString(item)}`;
     setRemovingItemId(uniqueId);
 
     setTimeout(() => {
-      setCartItems((prev) =>
-        prev.filter(
-          (item) => !(item.id === itemToRemove.id && item.prix === itemToRemove.prix)
-        )
+      setCartItems(prev =>
+        prev.filter(i => !(i.id === item.id && getPrixString(i) === getPrixString(item)))
       );
       setRemovingItemId(null);
-    }, 300); // Durée du fade-out
+    }, 300);
   };
 
   // Vider le panier
@@ -53,10 +70,10 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, localisation }) =>
   };
 
   // Calcul du total
-  const totalPrix = cartItems.reduce((acc, item) => {
-    const prix = parsePrix(item.prix);
-    return acc + prix * (item.quantité || 1);
-  }, 0);
+  const totalPrix = cartItems.reduce(
+    (acc, item) => acc + parsePrix(getPrixString(item)) * (item.quantité || 1),
+    0
+  );
 
   // Commander via WhatsApp
   const handleCommander = () => {
@@ -69,7 +86,7 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, localisation }) =>
     const message = encodeURIComponent(
       `Bonjour, j'aimerais commander les articles suivants :\n\n` +
         cartItems
-          .map((item) => `- ${item.nom} x${item.quantité} (${item.prix})`)
+          .map(item => `- ${item.nom} x${item.quantité} (${getPrixLabel(item)})`)
           .join("\n") +
         `\n\nTotal: ${formatPrix(totalPrix)}` +
         `\nLocalisation : ${localisation || "Non spécifiée"}` +
@@ -88,14 +105,14 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, localisation }) =>
       ) : (
         <>
           <ul className="itemList">
-            {cartItems.map((item) => {
-              const uniqueId = `${item.id}-${item.prix}`;
+            {cartItems.map(item => {
+              const uniqueId = `${item.id}-${getPrixString(item)}`;
               const isRemoving = removingItemId === uniqueId;
 
               return (
                 <li
-                  className={`list ${isRemoving ? "fade-out" : ""}`}
                   key={uniqueId}
+                  className={`list ${isRemoving ? "fade-out" : ""}`}
                   style={{
                     marginBottom: "1rem",
                     transition: "opacity 0.3s, transform 0.3s",
@@ -104,17 +121,22 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, localisation }) =>
                   }}
                 >
                   <div className="itemName">
-                    <strong>{item.nom}</strong> {item.prix} × {item.quantité} ={" "}
-                    {formatPrix((item.quantité || 1) * parsePrix(item.prix))}
+                    <strong>{item.nom}</strong> {getPrixLabel(item)} × {item.quantité} ={" "}
+                    {formatPrix(parsePrix(getPrixString(item)) * (item.quantité || 1))}
                   </div>
-                  <div className="divQuant" style={{ marginTop: "1.5rem", display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                    <button className="reduce" onClick={() => updateQuantity(item.id, -1)}>-</button>
+                  <div
+                    className="divQuant"
+                    style={{
+                      marginTop: "1.5rem",
+                      display: "flex",
+                      gap: "0.5rem",
+                      alignItems: "center",
+                    }}
+                  >
+                    <button className="reduce" onClick={() => updateQuantity(item, -1)}>-</button>
                     <span>{item.quantité}</span>
-                    <button className="adds" onClick={() => updateQuantity(item.id, 1)}>+</button>
-                    <button
-                      className="delete-item"
-                      onClick={() => handleRemoveItem(item)}
-                    >
+                    <button className="adds" onClick={() => updateQuantity(item, 1)}>+</button>
+                    <button className="delete-item" onClick={() => handleRemoveItem(item)}>
                       <img src={images.trash} alt="" />
                     </button>
                   </div>
@@ -125,7 +147,6 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, localisation }) =>
 
           <h2 className="price">Total : {formatPrix(totalPrix)}</h2>
 
-          {/* Formulaire client */}
           <div className="form">
             <h2 className="info">Informations Client</h2>
             <div className="inputs">
@@ -133,22 +154,18 @@ const CartPage: React.FC<Props> = ({ cartItems, setCartItems, localisation }) =>
                 type="text"
                 placeholder="Nom"
                 value={nom}
-                onChange={(e) => setNom(e.target.value)}
+                onChange={e => setNom(e.target.value)}
               />
               <input
                 type="text"
                 placeholder="Prénom"
                 value={prenom}
-                onChange={(e) => setPrenom(e.target.value)}
+                onChange={e => setPrenom(e.target.value)}
               />
             </div>
           </div>
 
-          {/* Boutons actions */}
-          <div
-            className="CartBtns"
-            style={{ marginTop: "1.5rem", display: "flex", gap: "1rem" }}
-          >
+          <div className="CartBtns" style={{ marginTop: "1.5rem", display: "flex", gap: "1rem" }}>
             <button
               onClick={handleClearCart}
               style={{

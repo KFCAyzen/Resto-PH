@@ -21,13 +21,12 @@ const MenuPage: React.FC<Props> = ({
 }) => {
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('Tout');
-  const [loading, setLoading] = useState(true); // état loading
+  const [loading, setLoading] = useState(true);
+  const [selectedPrice, setSelectedPrice] = useState<string>(""); // prix choisi (radio)
 
   // --- Simuler chargement ---
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1200); // 1.2s de chargement
+    const timer = setTimeout(() => setLoading(false), 1200);
     return () => clearTimeout(timer);
   }, []);
 
@@ -52,7 +51,7 @@ const MenuPage: React.FC<Props> = ({
           );
 
   const groupedItems = finalFilteredItems.reduce((acc: { [key: string]: MenuItem[] }, item) => {
-    item.catégorie.forEach((cat) => {
+    item.catégorie.forEach(cat => {
       if (!acc[cat]) acc[cat] = [];
       acc[cat].push(item);
     });
@@ -63,13 +62,11 @@ const MenuPage: React.FC<Props> = ({
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
+      entries => {
+        entries.forEach(entry => {
           if (entry.isIntersecting) {
             const index = entry.target.getAttribute('data-index');
-            setTimeout(() => {
-              entry.target.classList.add('visible');
-            }, Number(index) * 100);
+            setTimeout(() => entry.target.classList.add('visible'), Number(index) * 100);
             observer.unobserve(entry.target);
           }
         });
@@ -84,7 +81,7 @@ const MenuPage: React.FC<Props> = ({
 
   return (
     <div>
-      {/* --- Boutons de sélection de catégories --- */}
+      {/* --- Boutons catégories --- */}
       <div
         className="scroll-container"
         style={{
@@ -118,9 +115,7 @@ const MenuPage: React.FC<Props> = ({
             {cat}
           </button>
         ))}
-        <style>{`
-          .scroll-container::-webkit-scrollbar { display: none; }
-        `}</style>
+        <style>{`.scroll-container::-webkit-scrollbar { display: none; }`}</style>
       </div>
 
       {/* --- Skeleton ou Produits --- */}
@@ -136,25 +131,28 @@ const MenuPage: React.FC<Props> = ({
         </div>
       ) : (
         Object.entries(groupedItems).map(([catégorie, items]) => (
-          <div key={catégorie} className='menu-section'>
-            <h2 className='categorie-title'>{catégorie}</h2>
+          <div key={catégorie} className="menu-section">
+            <h2 className="categorie-title">{catégorie}</h2>
             <div className="menu-items">
               {items.map((item, index) => {
                 const uniqueKey = `${catégorie}-${item.id}`;
                 return (
                   <div
                     key={uniqueKey}
-                    ref={(el: HTMLDivElement | null) => {
-                      itemsRef.current[uniqueKey] = el;
-                    }}
-                    className='menuitem hidden'
+                    ref={el => { itemsRef.current[uniqueKey] = el; }}
+                    className="menuitem hidden"
                     data-index={index}
-                    onClick={() => setSelectedItem(item)}
+                    onClick={() => {
+                      setSelectedItem(item);
+                      if (Array.isArray(item.prix)) {
+                        setSelectedPrice(""); // reset la sélection
+                      }
+                    }}
                     style={{ cursor: 'pointer' }}
                   >
                     <img src={item.image} alt={item.nom} />
                     <h3>{item.nom}</h3>
-                    <p>{item.prix}</p>
+                    <p>{Array.isArray(item.prix) ? 'Plusieurs prix' : item.prix}</p>
                   </div>
                 );
               })}
@@ -171,29 +169,58 @@ const MenuPage: React.FC<Props> = ({
             <h2>{selectedItem.nom}</h2>
             <img src={selectedItem.image} alt={selectedItem.nom} />
             <p><strong>Description :</strong> {selectedItem.description}</p>
-            <p><strong>Prix :</strong> {selectedItem.prix}</p>
+
+            {Array.isArray(selectedItem.prix) ? (
+              <div>
+                <p><strong>Choisissez une option :</strong></p>
+                {selectedItem.prix.map((opt, idx) => (
+                  <div key={idx}>
+                    <input
+                      type="radio"
+                      id={`price-${idx}`}
+                      name={`prix-${selectedItem.id}`}
+                      value={opt.value}
+                      checked={selectedPrice === opt.value}
+                      onChange={() => setSelectedPrice(opt.value)}
+                    />
+                    <label htmlFor={`price-${idx}`}>{opt.label} - {opt.value}</label>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p><strong>Prix :</strong> {selectedItem.prix}</p>
+            )}
+
             <div className="buttons">
               <button
-                className='addBtn'
+                className="addBtn"
                 onClick={() => {
-                  onAddToCart(selectedItem);
+                  if (Array.isArray(selectedItem.prix)) {
+                    const selectedOption = selectedItem.prix.find(opt => opt.value === selectedPrice);
+                    if (selectedOption) {
+                      onAddToCart({ ...selectedItem, prix: [selectedOption] });
+                    }
+                  } else {
+                    onAddToCart({ ...selectedItem, prix: [{ label: "", value: selectedItem.prix as string }] });
+                  }
                   setSelectedItem(null);
+                  setSelectedPrice("");
                 }}
               >
                 Ajouter au panier
               </button>
-              <button className='close' onClick={() => setSelectedItem(null)}>Fermer</button>
+              <button className="close" onClick={() => setSelectedItem(null)}>Fermer</button>
             </div>
           </div>
         </>
       )}
 
       {/* --- Footer --- */}
-      <section className='footer'>
+      <section className="footer">
         <h2>Contactez nous</h2>
         <div className="tel">
           <img src={images.phone} alt="" />
-          <p className='num'><span>Téléphone:</span> +237 657 011 948 / 675 026 289</p>
+          <p className="num"><span>Téléphone:</span> +237 657 011 948 / 675 026 289</p>
         </div>
         <div className="mail">
           <img src={images.mail} alt="" />
@@ -205,15 +232,21 @@ const MenuPage: React.FC<Props> = ({
         </div>
         <div className="socials">
           <div>
-            <a href="https://www.facebook.com/share/19eJEP4m5g/?mibextid=wwXIfr"><img src={images.facebook} alt="" /></a>
+            <a href="https://www.facebook.com/share/19eJEP4m5g/?mibextid=wwXIfr">
+              <img src={images.facebook} alt="" />
+            </a>
             <p>FaceBook</p>
           </div>
           <div>
-            <a href="https://www.tiktok.com/@paulina.hotel21?_t=ZM-8ycfR0dU40s&_r=1"><img src={images.tiktok} alt="" /></a>
+            <a href="https://www.tiktok.com/@paulina.hotel21?_t=ZM-8ycfR0dU40s&_r=1">
+              <img src={images.tiktok} alt="" />
+            </a>
             <p>TikTok</p>
           </div>
           <div>
-            <a href="https://wa.link/zxqlo7"><img src={images.whatsapp} alt="" /></a>
+            <a href="https://wa.link/zxqlo7">
+              <img src={images.whatsapp} alt="" />
+            </a>
             <p>WhatsApp</p>
           </div>
         </div>
