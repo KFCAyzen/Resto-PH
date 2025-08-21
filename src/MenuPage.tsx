@@ -198,10 +198,17 @@ const MenuPage: React.FC<Props> = ({
                   if (Array.isArray(selectedItem.prix)) {
                     const selectedOption = selectedItem.prix.find(opt => opt.value === selectedPrice);
                     if (selectedOption) {
-                      onAddToCart({ ...selectedItem, prix: [selectedOption] });
+                      onAddToCart({
+                        ...selectedItem,
+                        nom: `${selectedItem.nom} (${selectedOption.label})`, // Ajout du label dans le nom
+                        prix: selectedOption.value,
+                      });
                     }
                   } else {
-                    onAddToCart({ ...selectedItem, prix: [{ label: "", value: selectedItem.prix as string }] });
+                    onAddToCart({
+                      ...selectedItem,
+                      prix: selectedItem.prix as string,
+                    });
                   }
                   setSelectedItem(null);
                   setSelectedPrice("");
