@@ -955,7 +955,7 @@ export const drinksItems: MenuItem[] = [
     nom: "Reaktor",
     prix: "1000 FCFA",
     image: images.reaktor,
-    catégorie: ["Boisson Energétique"],
+    catégorie: ["Boissons Energétique"],
   },
   {
     id: 98,
