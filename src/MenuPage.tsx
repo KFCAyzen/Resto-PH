@@ -206,6 +206,17 @@ const MenuPage: React.FC<Props> = ({
                   setSelectedItem(null);
                   setSelectedPrice("");
                 }}
+                disabled={Array.isArray(selectedItem.prix) && !selectedPrice} // bouton désactivé si aucune option sélectionnée
+                style={{
+                  backgroundColor: Array.isArray(selectedItem.prix) && !selectedPrice ? '#7d383780' : '#7d3837',
+                  cursor: Array.isArray(selectedItem.prix) && !selectedPrice ? 'not-allowed' : 'pointer',
+                  color: 'white',
+                  padding: '15px',
+                  borderRadius: '8px',
+                  fontWeight: "bold",
+                  transition: 'background-color 0.3s ease-in',
+                  marginTop: '15px'
+                }}
               >
                 Ajouter au panier
               </button>

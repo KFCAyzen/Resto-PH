@@ -25,7 +25,7 @@ export const menuItems: MenuItem[] = [
     nom: "Pomme sauté à la viande de boeuf",
     prix: "3000 FCFA",
     image: images.pommeViande,
-    description: "Poulet mariné et grillé au feu de bois, tendre et savoureux.",
+    description: "Pommes de terre sautées accompagnées de viande de boeuf.",
     catégorie: ["Plats principaux", "Plats chaud"],
   },
   {
@@ -57,7 +57,7 @@ export const menuItems: MenuItem[] = [
     nom: "Eru",
     prix: "2500 FCFA",
     image: images.eru,
-    description: "Plat traditionnel à base de feuilles d'okok finement coupées, mijotées avec de l’eau, du sel gemme, du poisson fumé, de la viande, le tout relevé avec un peu d’huile R, disponible le dimanche.",
+    description: "Plat traditionnel à base de feuilles d'okok et waterleaf finement coupées, mijotées avec de l’eau, du poisson fumé, de la viande, le tout relevé avec un peu d’huile R, disponible le dimanche.",
     catégorie: ["Spécialitées du dimanche", "Plats chaud", "Plats traditionnels", "Plats principaux"],
   },
   {
@@ -73,7 +73,7 @@ export const menuItems: MenuItem[] = [
     nom: "Ndolé Viande",
     prix: "3000 FCFA",
     image: images.ndolé,
-    description: "Feuilles d’oseille amère mijotées avec viande et pâte d’arachide.",
+    description: "Feuilles d’une plante tropicale amère mijotées avec viande et pâte d’arachide.",
     catégorie: ["Plats traditionnels", "Plats chaud", "Plats principaux"],
   },
   {
