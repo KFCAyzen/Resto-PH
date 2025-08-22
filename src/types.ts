@@ -747,13 +747,13 @@ export const drinksItems: MenuItem[] = [
     image: images.ice,
     catégorie: ["Bières / Brasséries"],
   },
-  {
-    id: 67,
-    nom: "Manyan",
-    prix: "1000 FCFA",
-    image: images.manyan,
-    catégorie: ["Bières / Brasséries"],
-  },
+  // {
+  //   id: 67,
+  //   nom: "Manyan",
+  //   prix: "1000 FCFA",
+  //   image: images.manyan,
+  //   catégorie: ["Bières / Brasséries"],
+  // },
   {
     id: 68,
     nom: "Castel",

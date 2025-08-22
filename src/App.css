@@ -265,6 +265,11 @@
   backdrop-filter: brightness(0.5);
  }
 
+ input[type="radio"]:checked {
+  background-color: #7d3837 !important;
+  border: solid #7d3837 3px;
+}
+
  .CartBtns{
   display: flex;
   justify-content: space-between;

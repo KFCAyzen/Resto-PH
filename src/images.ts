@@ -130,7 +130,6 @@ import heineken from "./assets/heineken.jpg";
 import ceyssac from "./assets/ceyssac.jpeg";
 import bavaria from "./assets/bavaria.jpg";
 import yatch from "./assets/yatch.webp";
-import back from "./assets/icons8-arrière-100.png";
 import up from './assets/icons8-flèche-haut-100.png';
 import facebook from './assets/icons8-facebook-100.png';
 import tiktok from './assets/icons8-tiktok-50.png';
@@ -296,7 +295,6 @@ export const images = {
     ceyssac,
     bavaria,
     yatch,
-    back,
     up,
     facebook,
     tiktok
