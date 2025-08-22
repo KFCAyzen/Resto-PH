@@ -137,23 +137,29 @@ const MenuPage: React.FC<Props> = ({
               {items.map((item, index) => {
                 const uniqueKey = `${catégorie}-${item.id}`;
                 return (
-                  <div
-                    key={uniqueKey}
-                    ref={el => { itemsRef.current[uniqueKey] = el; }}
-                    className="menuitem hidden"
-                    data-index={index}
-                    onClick={() => {
-                      setSelectedItem(item);
-                      if (Array.isArray(item.prix)) {
-                        setSelectedPrice(""); // reset la sélection
-                      }
-                    }}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <img src={item.image} alt={item.nom} />
-                    <h3>{item.nom}</h3>
-                    <p>{Array.isArray(item.prix) ? 'Plusieurs prix' : item.prix}</p>
-                  </div>
+                 <div
+                  key={uniqueKey}
+                  ref={el => { itemsRef.current[uniqueKey] = el; }}
+                  className="menuitem hidden"
+                  data-index={index}
+                  onClick={() => {
+                    setSelectedItem(item);
+                    if (Array.isArray(item.prix)) {
+                      setSelectedPrice(""); // reset la sélection
+                    }
+                  }}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <img src={item.image} alt={item.nom} />
+                  <h3>{item.nom}</h3>
+                  <p>
+                    {Array.isArray(item.prix)
+                      ? `À partir de ${Math.min(
+                          ...item.prix.map(opt => parseInt(opt.value.replace(/\D/g, ""), 10))
+                        )} FCFA`
+                      : item.prix}
+                  </p>
+                </div>
                 );
               })}
             </div>
@@ -174,7 +180,7 @@ const MenuPage: React.FC<Props> = ({
               <div>
                 <p><strong>Choisissez une option :</strong></p>
                 {selectedItem.prix.map((opt, idx) => (
-                  <div key={idx}>
+                  <div className='choise' key={idx}>
                     <input
                       type="radio"
                       id={`price-${idx}`}

@@ -265,6 +265,13 @@
   backdrop-filter: brightness(0.5);
  }
 
+ .choise{
+  display: flex;
+  gap: 10px;
+  width: 70%;
+  margin-bottom: 10px;
+ }
+
  input[type="radio"]:checked {
   background-color: #7d3837 !important;
   border: solid #7d3837 3px;
@@ -454,6 +461,31 @@ footer{
 
 .skeleton-text.short {
   width: 60%;
+}
+
+@keyframes vibratePause {
+  0%, 10%, 20%, 30%, 40% {
+    transform: translateY(0);
+  }
+  5% {
+    transform: translateY(-3px);
+  }
+  15% {
+    transform: translateY(3px);
+  }
+  25% {
+    transform: translateY(-3px);
+  }
+  35% {
+    transform: translateY(3px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.vibrate {
+  animation: vibratePause 4s ease-in-out infinite;
 }
 
 @keyframes pulse {

@@ -159,7 +159,7 @@ function AppContent() {
       </nav>
 
       {location.pathname !== '/panier' && (
-        <div
+        <div className='vibrate'
           style={{
             position: 'fixed',
             bottom: '100px',
