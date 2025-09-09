@@ -150,7 +150,7 @@ const MenuPage: React.FC<Props> = ({
                   }}
                   style={{ cursor: 'pointer' }}
                 >
-                  <img src={item.image} alt={item.nom} />
+                  {item.image && <img src={item.image} alt={item.nom} />}
                   <h3>{item.nom}</h3>
                   <p>
                     {Array.isArray(item.prix)
@@ -173,7 +173,7 @@ const MenuPage: React.FC<Props> = ({
           <div className="overlay" onClick={() => setSelectedItem(null)}></div>
           <div className="modal">
             <h2>{selectedItem.nom}</h2>
-            <img src={selectedItem.image} alt={selectedItem.nom} />
+            {selectedItem.image && <img src={selectedItem.image} alt={selectedItem.nom} />}
             <p><strong>Description :</strong> {selectedItem.description}</p>
 
             {Array.isArray(selectedItem.prix) ? (

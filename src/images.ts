@@ -48,6 +48,8 @@ import hugo from "./assets/hugo-new.jpeg";
 import mia from "./assets/mia-rosé-new.jpeg";
 import antoine from "./assets/grand-antoine.jpeg";
 import chatron from "./assets/chartron-de-la-croix.jpeg";
+import logOut from "./assets/icons8-déconnexion-100.png";
+import cross from "./assets/icons8-multiplier-100.png";
 import merlot from "./assets/grand-sud-merlot.jpeg";
 import shiraz from "./assets/Shiraz_Cabernet.jpg";
 import rio from "./assets/Rio-Lindo-Syrah-2016-14.w610.h610.fill_.jpg";
@@ -147,8 +149,14 @@ import carts1 from './assets/icons8-shopping-cart-50 (1).png';
 import trash from './assets/icons8-poubelle-64.png';
 import reaktor from './assets/reaktor.jpg';
 import fanta from './assets/fanta.jpg';
+import adminActif from './assets/icons8-utilisateur-50.png';
+import admin from './assets/icons8-profile-50.png';
 
 export const images = {
+    adminActif,
+    admin,
+    logOut,
+    cross,
     fanta,
     reaktor,
     trash,
