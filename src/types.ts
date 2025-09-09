@@ -1,14 +1,13 @@
-import pouletDG from './assets/poulet_DG.jpg';  
+import pouletDG from './assets/poulet_DG.jpg'; 
 import { images } from "./images";
 
 export type MenuItem = {
-  id: string | number;
+  id: number;
   nom: string;
   prix: string | { label: string; value: string; selected?: boolean }[];
   image: string;
   description?: string;
-  catégorie: string[];
-  filtre: string[];   // ✅ Nouveau champ obligatoire (identique à catégorie)
+  catégorie: string[],
   quantité?: number;
 };
 
@@ -20,7 +19,6 @@ export const menuItems: MenuItem[] = [
     image: pouletDG,
     description: "Poulet frit mijoté avec plantains mûrs, légumes et épices.",
     catégorie: ["Plats principaux", "Plats chaud"],
-    filtre: ["Plats principaux", "Plats chaud"],
   },
   {
     id: 2,
@@ -29,7 +27,6 @@ export const menuItems: MenuItem[] = [
     image: images.pommeViande,
     description: "Pommes de terre sautées accompagnées de viande de boeuf.",
     catégorie: ["Plats principaux", "Plats chaud"],
-    filtre: ["Plats principaux", "Plats chaud"],
   },
   {
     id: 3,
@@ -38,7 +35,6 @@ export const menuItems: MenuItem[] = [
     image: images.pouletBraisé,
     description: "Poulet mariné et grillé au feu de bois, tendre et savoureux.",
     catégorie: ["Grillades & Poêlés", "Plats chaud"],
-    filtre: ["Grillades & Poêlés", "Plats chaud"],
   },
   {
     id: 25,
@@ -47,7 +43,6 @@ export const menuItems: MenuItem[] = [
     image: images.pané,
     description: "Morceaux de poulet enrobé de chapelure et frit à la perfection.",
     catégorie: ["Grillades & Poêlés", "Plats chaud"],
-    filtre: ["Grillades & Poêlés", "Plats chaud"],
   },
   {
     id: 4,
@@ -56,7 +51,6 @@ export const menuItems: MenuItem[] = [
     image: images.taro,
     description: "Taro pilé accompagné d'une sauce jaune aux épices et huile de palme.Plat traditionnel Bamiléké très prisé disponible tout les dimanches",
     catégorie: ["Plats principaux", "Spécialitées du dimanche", "Plats traditionnels"],
-    filtre: ["Plats principaux", "Spécialitées du dimanche", "Plats traditionnels"],
   },
   {
     id: 5,
@@ -65,7 +59,6 @@ export const menuItems: MenuItem[] = [
     image: images.eru,
     description: "Plat traditionnel à base de feuilles d'okok et waterleaf finement coupées, mijotées avec de l’eau, du poisson fumé, de la viande, le tout relevé avec un peu d’huile R, disponible le dimanche.",
     catégorie: ["Spécialitées du dimanche", "Plats chaud", "Plats traditionnels", "Plats principaux"],
-    filtre: ["Spécialitées du dimanche", "Plats chaud", "Plats traditionnels", "Plats principaux"],
   },
   {
     id: 32,
@@ -74,7 +67,6 @@ export const menuItems: MenuItem[] = [
     image: images.bouillon,
     description: "Bouillon épicé à base de viande de bœuf, servi bien chaud avec des épices locales. Disponible tout les dimanches",
     catégorie: ["Spécialitées du dimanche", "Soupes", "Plats principaux"],
-    filtre: ["Spécialitées du dimanche", "Soupes", "Plats principaux"],
   },
   {
     id: 6,
@@ -83,7 +75,6 @@ export const menuItems: MenuItem[] = [
     image: images.ndolé,
     description: "Feuilles d’une plante tropicale amère mijotées avec viande et pâte d’arachide.",
     catégorie: ["Plats traditionnels", "Plats chaud", "Plats principaux"],
-    filtre: ["Plats traditionnels", "Plats chaud", "Plats principaux"],
   },
   {
     id: 7,
@@ -92,7 +83,6 @@ export const menuItems: MenuItem[] = [
     image: images.saucisse,
     description: "Saucisses épicées grillées, servies chaudes.",
     catégorie: ["Grillades & Poêlés", "Plats chaud"],
-    filtre: ["Grillades & Poêlés", "Plats chaud"],
   },
   {
     id: 8,
@@ -101,7 +91,6 @@ export const menuItems: MenuItem[] = [
     image: images.émincé,
     description: "Fines lamelles de bœuf sautées, sauce légère et savoureuse.",
     catégorie: ["Plats chaud", "Plats principaux"],
-    filtre: ["Plats chaud", "Plats principaux"],
   },
   {
     id: 9,
@@ -110,7 +99,6 @@ export const menuItems: MenuItem[] = [
     image: images.tripes,
     description: "Tripes nettoyées et sautées avec condiments, texture fondante.",
     catégorie: ["Plats chaud", "Plats principaux"],
-    filtre: ["Plats chaud", "Plats principaux"],
   },
   {
     id: 10,
@@ -119,7 +107,6 @@ export const menuItems: MenuItem[] = [
     image: images.rognon,
     description: "Rognons tendres sautés à la poêle avec oignons, divers épices et piment doux.",
     catégorie: ["Plats chaud", "Plats principaux"],
-    filtre: ["Plats chaud", "Plats principaux"],
   },
   {
     id: 11,
@@ -128,7 +115,6 @@ export const menuItems: MenuItem[] = [
     image: images.ndoléFumé,
     description: "Ndolé revisité avec poisson fumée, goût intense et rustique.",
     catégorie: ["Plats chaud", "Plats traditionnels", "Plats principaux"],
-    filtre: ["Plats chaud", "Plats traditionnels", "Plats principaux"],
   },
   {
     id: 12,
@@ -137,7 +123,6 @@ export const menuItems: MenuItem[] = [
     image: images.pommePoisson,
     description: "Pommes de terre sautées accompagnées de filets de poisson épicé.",
     catégorie: ["Plats chaud", "Plats principaux"],
-    filtre: ["Plats chaud", "Plats principaux"],
   },
   {
     id: 13,
@@ -146,7 +131,6 @@ export const menuItems: MenuItem[] = [
     image: images.pouletYassa,
     description: "Poulet mariné aux oignons, citron et moutarde, originaire du Sénégal.",
     catégorie: ["Plats chaud", "Plats principaux"],
-    filtre: ["Plats chaud", "Plats principaux"],
   },
   {
     id: 14,
@@ -157,7 +141,6 @@ export const menuItems: MenuItem[] = [
     image: images.barBraisé,
     description: "Filet de bar rôti à la braise, peau croustillante chaire tendre.",
     catégorie: ["Grillades & Poêlés"],
-    filtre: ["Grillades & Poêlés"],
   },
   {
     id: 15,
@@ -168,7 +151,6 @@ export const menuItems: MenuItem[] = [
     image: images.calada,
     description: "Bar calada rôti à la braise avec un mélange d'épices exotiques.",
     catégorie: ["Grillades & Poêlés"],
-    filtre: ["Grillades & Poêlés"],
   },
   {
     id: 16,
@@ -179,7 +161,6 @@ export const menuItems: MenuItem[] = [
     image: images.carpe,
     description: "Carpe entière grillé, parfumée aux herbes et condiments locaux.",
     catégorie: ["Grillades & Poêlés"],
-    filtre: ["Grillades & Poêlés"],
   },
   {
     id: 17,
@@ -188,7 +169,6 @@ export const menuItems: MenuItem[] = [
     image: images.foie,
     description: "Foie de boeuf sauté aux oignons et poivrons, tendre et parfumé.",
     catégorie: ["Plats chaud", "Plats principaux"],
-    filtre: ["Plats chaud", "Plats principaux"],
   },
   {
     id: 18,
@@ -197,7 +177,6 @@ export const menuItems: MenuItem[] = [
     image: images.omlette,
     description: "Omelette simple aux oeufs battus, légère et moelleuse.",
     catégorie: ["Petit déjeuné"],
-    filtre: ["Petit déjeuné"],
   },
   {
     id: 19,
@@ -206,7 +185,6 @@ export const menuItems: MenuItem[] = [
     image: images.omletteSardine,
     description: "Omelette garnie de sardines et dépices douces.",
     catégorie: ["Petit déjeuné"],
-    filtre: ["Petit déjeuné"],
   },
   {
     id: 20,
@@ -215,7 +193,6 @@ export const menuItems: MenuItem[] = [
     image: images.omletteSaucisson,
     description: "Omelette généreuse au saucisson, parfaite pour les gourmands.",
     catégorie: ["Petit déjeuné"],
-    filtre: ["Petit déjeuné"],
   },
   {
     id: 21,
@@ -224,7 +201,6 @@ export const menuItems: MenuItem[] = [
     image: images.tasse,
     description: "Lait chaud servi nature, doux et reconfortant.",
     catégorie: ["Boissons chaudes"],
-    filtre: ["Boissons chaudes"],
   },
   {
     id: 22,
@@ -233,7 +209,6 @@ export const menuItems: MenuItem[] = [
     image: images.théCitron,
     description: "Infusion légère au citron, rafraichissanté et tonifiante",
     catégorie: ["Boissons chaudes"],
-    filtre: ["Boissons chaudes"],
   },
   {
     id: 23,
@@ -242,7 +217,6 @@ export const menuItems: MenuItem[] = [
     image: images.théMenthe,
     description: "Thé vert infusé à la menthe fraîche, apaisant et parfumé.",
     catégorie: ["Boissons chaudes"],
-    filtre: ["Boissons chaudes"],
   },
   {
     id: 24,
@@ -251,8 +225,8 @@ export const menuItems: MenuItem[] = [
     image: images.théVert,
     description: "Thé classique riche en antioxydants, goût pur et naturel.",
     catégorie: ["Boissons chaudes"],
-    filtre: ["Boissons chaudes"],
-  },
+  }
+  ,
   {
     id: 26,
     nom: "Plantains Vapeur",
@@ -260,7 +234,6 @@ export const menuItems: MenuItem[] = [
     image: images.plantainVapeur,
     description: "Plantains cuit à la vapeur",
     catégorie: ["Accompagnements"],
-    filtre: ["Accompagnements"],
   },
   {
     id: 27,
@@ -269,7 +242,6 @@ export const menuItems: MenuItem[] = [
     image: images.plantainFrie,
     description: "Plantains frit et dorés à l'huile.",
     catégorie: ["Accompagnements"],
-    filtre: ["Accompagnements"],
   },
   {
     id: 28,
@@ -278,7 +250,6 @@ export const menuItems: MenuItem[] = [
     image: images.tapé,
     description: "Plantains écrasé et frit, croustillant et moelleux.",
     catégorie: ["Accompagnements"],
-    filtre: ["Accompagnements"],
   },
   {
     id: 29,
@@ -287,7 +258,6 @@ export const menuItems: MenuItem[] = [
     image: images.frite,
     description: "Pommes de terre frit et dorés à l'huile.",
     catégorie: ["Accompagnements"],
-    filtre: ["Accompagnements"],
   },
   {
     id: 30,
@@ -296,7 +266,6 @@ export const menuItems: MenuItem[] = [
     image: images.pommeVapeur,
     description: "Pommes de terre cuit à la vapeur.",
     catégorie: ["Accompagnements"],
-    filtre: ["Accompagnements"],
   },
   {
     id: 31,
@@ -305,7 +274,6 @@ export const menuItems: MenuItem[] = [
     image: images.pilaf,
     description: "Riz parfumé mijoté et assaisonné cuit à la vapeur",
     catégorie: ["Accompagnements"],
-    filtre: ["Accompagnements"],
   }
 ];
 
@@ -316,7 +284,6 @@ export const drinksItems: MenuItem[] = [
     prix: "5000 FCFA",
     image: images.cuivre,
     catégorie: ["Vins Blanc"],
-    filtre: ["Vins Blanc"],
   },
   {
     id: 128,
@@ -324,7 +291,6 @@ export const drinksItems: MenuItem[] = [
     prix: "5000 FCFA",
     image: images.cantelouBlanc,
     catégorie: ["Vins Blanc"],
-    filtre: ["Vins Blanc"],
   },
   {
     id: 127,
@@ -332,7 +298,6 @@ export const drinksItems: MenuItem[] = [
     prix: "6000 FCFA",
     image: images.isabelle,
     catégorie: ["Vins Blanc"],
-    filtre: ["Vins Blanc"],
   },
   {
     id: 126,
@@ -340,7 +305,6 @@ export const drinksItems: MenuItem[] = [
     prix: "6000 FCFA",
     image: images.calvetBlanc,
     catégorie: ["Vins Blanc"],
-    filtre: ["Vins Blanc"],
   },
   {
     id: 125,
@@ -348,7 +312,6 @@ export const drinksItems: MenuItem[] = [
     prix: "7000 FCFA",
     image: images.ballartrosé,
     catégorie: ["Vins Blanc"],
-    filtre: ["Vins Blanc"],
   },
   {
     id: 124,
@@ -356,7 +319,6 @@ export const drinksItems: MenuItem[] = [
     prix: "7000 FCFA",
     image: images.louisBlanc,
     catégorie: ["Vins Blanc"],
-    filtre: ["Vins Blanc"],
   },
   {
     id: 123,
@@ -364,7 +326,6 @@ export const drinksItems: MenuItem[] = [
     prix: "10,000 FCFA",
     image: images.moscato,
     catégorie: ["Vins Blanc"],
-    filtre: ["Vins Blanc"],
   },
   {
     id: 122,
@@ -372,7 +333,6 @@ export const drinksItems: MenuItem[] = [
     prix: "10,000 FCFA",
     image: images.hugo,
     catégorie: ["Vins Rosé"],
-    filtre: ["Vins Rosé"],
   },
   {
     id: 121,
@@ -380,7 +340,6 @@ export const drinksItems: MenuItem[] = [
     prix: "15,000 FCFA",
     image: images.mia,
     catégorie: ["Vins Rosé"],
-    filtre: ["Vins Rosé"],
   },
   {
     id: 120,
@@ -388,7 +347,6 @@ export const drinksItems: MenuItem[] = [
     prix: "5000 FCFA",
     image: images.cantelouRouge,
     catégorie: ["Vins Rouge"],
-    filtre: ["Vins Rouge"],
   },
   {
     id: 119,
@@ -396,7 +354,6 @@ export const drinksItems: MenuItem[] = [
     prix: "8000 FCFA",
     image: images.louisRouge,
     catégorie: ["Vins Rouge"],
-    filtre: ["Vins Rouge"],
   },
   {
     id: 118,
@@ -404,7 +361,6 @@ export const drinksItems: MenuItem[] = [
     prix: "5000 FCFA",
     image: images.cuivre,
     catégorie: ["Vins Rouge"],
-    filtre: ["Vins Rouge"],
   },
   {
     id: 117,
@@ -412,7 +368,6 @@ export const drinksItems: MenuItem[] = [
     prix: "5000 FCFA",
     image: images.calvet,
     catégorie: ["Vins Rouge"],
-    filtre: ["Vins Rouge"],
   },
   {
     id: 116,
@@ -420,7 +375,6 @@ export const drinksItems: MenuItem[] = [
     prix: "7000 FCFA",
     image: images.antoine,
     catégorie: ["Vins Rouge"],
-    filtre: ["Vins Rouge"],
   },
   {
     id: 115,
@@ -428,7 +382,6 @@ export const drinksItems: MenuItem[] = [
     prix: "7000 FCFA",
     image: images.chatron,
     catégorie: ["Vins Rouge"],
-    filtre: ["Vins Rouge"],
   },
   {
     id: 114,
@@ -436,7 +389,6 @@ export const drinksItems: MenuItem[] = [
     prix: "7000 FCFA",
     image: images.merlot,
     catégorie: ["Vins Rouge"],
-    filtre: ["Vins Rouge"],
   },
   {
     id: 113,
@@ -444,7 +396,6 @@ export const drinksItems: MenuItem[] = [
     prix: "7000 FCFA",
     image: images.shiraz,
     catégorie: ["Vins Rouge"],
-    filtre: ["Vins Rouge"],
   },
   {
     id: 112,
@@ -452,7 +403,6 @@ export const drinksItems: MenuItem[] = [
     prix: "8000 FCFA",
     image: images.rio,
     catégorie: ["Vins Rouge"],
-    filtre: ["Vins Rouge"],
   },
   {
     id: 111,
@@ -460,7 +410,6 @@ export const drinksItems: MenuItem[] = [
     prix: "8000 FCFA",
     image: images.castilla,
     catégorie: ["Vins Rouge"],
-    filtre: ["Vins Rouge"],
   },
   {
     id: 110,
@@ -468,7 +417,6 @@ export const drinksItems: MenuItem[] = [
     prix: "10,000 FCFA",
     image: images.damati,
     catégorie: ["Vins Rouge"],
-    filtre: ["Vins Rouge"],
   },
   {
     id: 109,
@@ -476,7 +424,6 @@ export const drinksItems: MenuItem[] = [
     prix: "15,000 FCFA",
     image: images.villalta,
     catégorie: ["Vins Rouge"],
-    filtre: ["Vins Rouge"],
   },
   {
     id: 108,
@@ -484,7 +431,6 @@ export const drinksItems: MenuItem[] = [
     prix: "20,000 FCFA",
     image: images.chianti,
     catégorie: ["Vins Rouge"],
-    filtre: ["Vins Rouge"],
   },
   {
     id: 107,
@@ -492,7 +438,6 @@ export const drinksItems: MenuItem[] = [
     prix: "25,000 FCFA",
     image: images.vincent,
     catégorie: ["Champagnes"],
-    filtre: ["Champagnes"],
   },
   {
     id: 106,
@@ -500,7 +445,6 @@ export const drinksItems: MenuItem[] = [
     prix: "25,000 FCFA",
     image: images.pataNegra,
     catégorie: ["Champagnes"],
-    filtre: ["Champagnes"],
   },
   {
     id: 105,
@@ -508,7 +452,6 @@ export const drinksItems: MenuItem[] = [
     prix: "105,000 FCFA",
     image: images.ruinart,
     catégorie: ["Champagnes"],
-    filtre: ["Champagnes"],
   },
   {
     id: 104,
@@ -516,7 +459,6 @@ export const drinksItems: MenuItem[] = [
     prix: "3500 FCFA",
     image: images.imperialBlue,
     catégorie: ["Whiskys"],
-    filtre: ["Whiskys"],
   },
   {
     id: 103,
@@ -524,7 +466,6 @@ export const drinksItems: MenuItem[] = [
     prix: "3500 FCFA",
     image: images.black,
     catégorie: ["Whiskys"],
-    filtre: ["Whiskys"],
   },
   {
     id: 102,
@@ -532,7 +473,6 @@ export const drinksItems: MenuItem[] = [
     prix: "15,000 FCFA",
     image: images.blackWhite,
     catégorie: ["Whiskys", "Produits Guinnes"],
-    filtre: ["Whiskys", "Produits Guinnes"],
   },
   {
     id: 32,
@@ -540,7 +480,6 @@ export const drinksItems: MenuItem[] = [
     prix: "10,000 FCFA",
     image: images.ws,
     catégorie: ["Whiskys"],
-    filtre: ["Whiskys"],
   },
   {
     id: 91,
@@ -548,7 +487,6 @@ export const drinksItems: MenuItem[] = [
     prix: "10,000 FCFA",
     image: images.yatch,
     catégorie: ["Whiskys"],
-    filtre: ["Whiskys"],
   },
   {
     id: 33,
@@ -556,7 +494,6 @@ export const drinksItems: MenuItem[] = [
     prix: "10,000 FCFA",
     image: images.w1805,
     catégorie: ["Whiskys"],
-    filtre: ["Whiskys"],
   },
   {
     id: 34,
@@ -564,7 +501,6 @@ export const drinksItems: MenuItem[] = [
     prix: "10,000 FCFA",
     image: images.eperon,
     catégorie: ["Whiskys"],
-    filtre: ["Whiskys"],
   },
   {
     id: 35,
@@ -572,7 +508,6 @@ export const drinksItems: MenuItem[] = [
     prix: "10,000 FCFA",
     image: images.bagpiper,
     catégorie: ["Whiskys"],
-    filtre: ["Whiskys"],
   },
   {
     id: 36,
@@ -580,7 +515,6 @@ export const drinksItems: MenuItem[] = [
     prix: "15,000 FCFA",
     image: images.baileys,
     catégorie: ["Whiskys"],
-    filtre: ["Whiskys"],
   },
   {
     id: 37,
@@ -588,7 +522,6 @@ export const drinksItems: MenuItem[] = [
     prix: "15,000 FCFA",
     image: images.martiniBlanc,
     catégorie: ["Whiskys"],
-    filtre: ["Whiskys"],
   },
   {
     id: 38,
@@ -596,7 +529,6 @@ export const drinksItems: MenuItem[] = [
     prix: "15,000 FCFA",
     image: images.martiniRouge,
     catégorie: ["Whiskys"],
-    filtre: ["Whiskys"],
   },
   {
     id: 39,
@@ -604,7 +536,6 @@ export const drinksItems: MenuItem[] = [
     prix: "20,000 FCFA",
     image: images.jameson,
     catégorie: ["Whiskys"],
-    filtre: ["Whiskys"],
   },
   {
     id: 40,
@@ -612,7 +543,6 @@ export const drinksItems: MenuItem[] = [
     prix: "20,000 FCFA",
     image: images.redlabel,
     catégorie: ["Whiskys"],
-    filtre: ["Whiskys"],
   },
   {
     id: 41,
@@ -620,7 +550,6 @@ export const drinksItems: MenuItem[] = [
     prix: "20,000 FCFA",
     image: images.hunting,
     catégorie: ["Whiskys"],
-    filtre: ["Whiskys"],
   },
   {
     id: 42,
@@ -628,7 +557,6 @@ export const drinksItems: MenuItem[] = [
     prix: "25,000 FCFA",
     image: images.label5,
     catégorie: ["Whiskys"],
-    filtre: ["Whiskys"],
   },
   {
     id: 43,
@@ -636,7 +564,6 @@ export const drinksItems: MenuItem[] = [
     prix: "25,000 FCFA",
     image: images.lawsons,
     catégorie: ["Whiskys"],
-    filtre: ["Whiskys"],
   },
   {
     id: 44,
@@ -644,7 +571,6 @@ export const drinksItems: MenuItem[] = [
     prix: "25,000 FCFA",
     image: images.edwards,
     catégorie: ["Whiskys"],
-    filtre: ["Whiskys"],
   },
   {
     id: 45,
@@ -652,7 +578,6 @@ export const drinksItems: MenuItem[] = [
     prix: "25,000 FCFA",
     image: images.glen,
     catégorie: ["Whiskys"],
-    filtre: ["Whiskys"],
   },
   {
     id: 46,
@@ -660,7 +585,6 @@ export const drinksItems: MenuItem[] = [
     prix: "25,000 FCFA",
     image: images.pastis51,
     catégorie: ["Whiskys"],
-    filtre: ["Whiskys"],
   },
   {
     id: 47,
@@ -668,7 +592,6 @@ export const drinksItems: MenuItem[] = [
     prix: "30,000 FCFA",
     image: images.blackLabel,
     catégorie: ["Whiskys"],
-    filtre: ["Whiskys"],
   },
   {
     id: 48,
@@ -676,7 +599,6 @@ export const drinksItems: MenuItem[] = [
     prix: "30,000 FCFA",
     image: images.grants,
     catégorie: ["Whiskys"],
-    filtre: ["Whiskys"],
   },
   {
     id: 49,
@@ -684,7 +606,6 @@ export const drinksItems: MenuItem[] = [
     prix: "30,000 FCFA",
     image: images.chivas12,
     catégorie: ["Whiskys"],
-    filtre: ["Whiskys"],
   },
   {
     id: 50,
@@ -692,7 +613,6 @@ export const drinksItems: MenuItem[] = [
     prix: "35,000 FCFA",
     image: images.singleton,
     catégorie: ["Whiskys"],
-    filtre: ["Whiskys"],
   },
   {
     id: 51,
@@ -700,7 +620,6 @@ export const drinksItems: MenuItem[] = [
     prix: "55,000 FCFA",
     image: images.gold,
     catégorie: ["Whiskys"],
-    filtre: ["Whiskys"],
   },
   {
     id: 52,
@@ -708,7 +627,6 @@ export const drinksItems: MenuItem[] = [
     prix: "55,000 FCFA",
     image: images.jack,
     catégorie: ["Whiskys"],
-    filtre: ["Whiskys"],
   },
   {
     id: 53,
@@ -716,7 +634,6 @@ export const drinksItems: MenuItem[] = [
     prix: "75,000 FCFA",
     image: images.doubleBlack,
     catégorie: ["Whiskys"],
-    filtre: ["Whiskys"],
   },
   {
     id: 54,
@@ -724,7 +641,6 @@ export const drinksItems: MenuItem[] = [
     prix: "35,000 FCFA",
     image: images.goldLabel,
     catégorie: ["Whiskys"],
-    filtre: ["Whiskys"],
   },
   {
     id: 101,
@@ -732,7 +648,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.export33,
     catégorie: ["Bières / Brasséries"],
-    filtre: ["Bières / Brasséries"],
   },
   {
     id: 100,
@@ -740,7 +655,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.kadji,
     catégorie: ["Bières / Brasséries"],
-    filtre: ["Bières / Brasséries"],
   },
   {
     id: 99,
@@ -748,7 +662,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.doppel,
     catégorie: ["Bières / Brasséries"],
-    filtre: ["Bières / Brasséries"],
   },
   {
     id: 55,
@@ -756,7 +669,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.petiteGuinnes,
     catégorie: ["Produits Guinnes"],
-    filtre: ["Produits Guinnes"],
   },
   {
     id: 56,
@@ -764,7 +676,6 @@ export const drinksItems: MenuItem[] = [
     prix: "2000 FCFA",
     image: images.petiteGuinnes,
     catégorie: ["Produits Guinnes"],
-    filtre: ["Produits Guinnes"],
   },
   {
     id: 57,
@@ -772,7 +683,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.smooth,
     catégorie: ["Produits Guinnes"],
-    filtre: ["Produits Guinnes"],
   },
   {
     id: 58,
@@ -780,7 +690,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.harp,
     catégorie: ["Produits Guinnes"],
-    filtre: ["Produits Guinnes"],
   },
   {
     id: 59,
@@ -788,7 +697,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.orijin,
     catégorie: ["Produits Guinnes"],
-    filtre: ["Produits Guinnes"],
   },
   {
     id: 60,
@@ -796,7 +704,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.maltaguinnes,
     catégorie: ["Produits Guinnes"],
-    filtre: ["Produits Guinnes"],
   },
   {
     id: 61,
@@ -804,7 +711,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.mutzig,
     catégorie: ["Bières / Brasséries"],
-    filtre: ["Bières / Brasséries"],
   },
   {
     id: 62,
@@ -812,7 +718,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.beaufort,
     catégorie: ["Bières / Brasséries"],
-    filtre: ["Bières / Brasséries"],
   },
   {
     id: 63,
@@ -820,7 +725,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.light,
     catégorie: ["Bières / Brasséries"],
-    filtre: ["Bières / Brasséries"],
   },
   {
     id: 64,
@@ -828,7 +732,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.racine,
     catégorie: ["Bières / Brasséries"],
-    filtre: ["Bières / Brasséries"],
   },
   {
     id: 65,
@@ -836,7 +739,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1500 FCFA",
     image: images.isenbeck,
     catégorie: ["Bières / Brasséries"],
-    filtre: ["Bières / Brasséries"],
   },
   {
     id: 66,
@@ -844,15 +746,20 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.ice,
     catégorie: ["Bières / Brasséries"],
-    filtre: ["Bières / Brasséries"],
   },
+  // {
+  //   id: 67,
+  //   nom: "Manyan",
+  //   prix: "1000 FCFA",
+  //   image: images.manyan,
+  //   catégorie: ["Bières / Brasséries"],
+  // },
   {
     id: 68,
     nom: "Castel",
     prix: "1000 FCFA",
     image: images.castel,
     catégorie: ["Bières / Brasséries"],
-    filtre: ["Bières / Brasséries"],
   },
   {
     id: 69,
@@ -860,7 +767,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.chill,
     catégorie: ["Bières / Brasséries"],
-    filtre: ["Bières / Brasséries"],
   },
   {
     id: 70,
@@ -868,7 +774,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.coca,
     catégorie: ["Boissons Gazeuse"],
-    filtre: ["Boissons Gazeuse"],
   },
   {
     id: 71,
@@ -876,7 +781,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.topGrenadine,
     catégorie: ["Boissons Gazeuse"],
-    filtre: ["Boissons Gazeuse"],
   },
   {
     id: 72,
@@ -884,7 +788,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.topAnanas,
     catégorie: ["Boissons Gazeuse"],
-    filtre: ["Boissons Gazeuse"],
   },
   {
     id: 73,
@@ -892,7 +795,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.topOrange,
     catégorie: ["Boissons Gazeuse"],
-    filtre: ["Boissons Gazeuse"],
   },
   {
     id: 74,
@@ -900,7 +802,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.topPlamplemousse,
     catégorie: ["Boissons Gazeuse"],
-    filtre: ["Boissons Gazeuse"],
   },
   {
     id: 75,
@@ -908,7 +809,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.spécilaPamplemousse,
     catégorie: ["Boissons Gazeuse"],
-    filtre: ["Boissons Gazeuse"],
   },
   {
     id: 76,
@@ -916,7 +816,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.coca,
     catégorie: ["Boissons Gazeuse"],
-    filtre: ["Boissons Gazeuse"],
   },
   {
     id: 77,
@@ -924,7 +823,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.vimto,
     catégorie: ["Boissons Gazeuse"],
-    filtre: ["Boissons Gazeuse"],
   },
   {
     id: 78,
@@ -932,7 +830,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.orangina,
     catégorie: ["Boissons Gazeuse"],
-    filtre: ["Boissons Gazeuse"],
   },
   {
     id: 79,
@@ -940,7 +837,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.vanpurVanille,
     catégorie: ["Boissons Gazeuse"],
-    filtre: ["Boissons Gazeuse"],
   },
   {
     id: 80,
@@ -948,7 +844,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.vanpurCoffee,
     catégorie: ["Boissons Gazeuse"],
-    filtre: ["Boissons Gazeuse"],
   },
   {
     id: 81,
@@ -956,7 +851,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.powerMalt,
     catégorie: ["Boissons Gazeuse"],
-    filtre: ["Boissons Gazeuse"],
   },
   {
     id: 82,
@@ -964,7 +858,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.vody,
     catégorie: ["Vodka"],
-    filtre: ["Vodka"],
   },
   {
     id: 83,
@@ -972,7 +865,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.xenergy,
     catégorie: ["Boissons Energétique"],
-    filtre: ["Boissons Energétique"],
   },
   {
     id: 84,
@@ -980,7 +872,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1500 FCFA",
     image: images.frutas,
     catégorie: ["Jus Naturels"],
-    filtre: ["Jus Naturels"],
   },
   {
     id: 85,
@@ -988,7 +879,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.fresco,
     catégorie: ["Jus Naturels"],
-    filtre: ["Jus Naturels"],
   },
   {
     id: 86,
@@ -996,7 +886,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.bissap,
     catégorie: ["Jus Naturels"],
-    filtre: ["Jus Naturels"],
   },
   {
     id: 87,
@@ -1004,7 +893,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.baobab,
     catégorie: ["Jus Naturels"],
-    filtre: ["Jus Naturels"],
   },
   {
     id: 88,
@@ -1012,7 +900,6 @@ export const drinksItems: MenuItem[] = [
     prix: "2000 FCFA",
     image: images.elvino,
     catégorie: ["Vins Blanc"],
-    filtre: ["Vins Blanc"],
   },
   {
     id: 89,
@@ -1020,7 +907,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.heineken,
     catégorie: ["Bières / Brasséries"],
-    filtre: ["Bières / Brasséries"],
   },
   {
     id: 90,
@@ -1028,7 +914,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.ginger,
     catégorie: ["Jus Naturels"],
-    filtre: ["Jus Naturels"],
   },
   {
     id: 92,
@@ -1036,7 +921,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.booster,
     catégorie: ["Bières / Brasséries"],
-    filtre: ["Bières / Brasséries"],
   },
   {
     id: 93,
@@ -1044,7 +928,6 @@ export const drinksItems: MenuItem[] = [
     prix: "10,000 FCFA",
     image: images.ceyssac,
     catégorie: ["Vins Rouge"],
-    filtre: ["Vins Rouge"],
   },
   {
     id: 94,
@@ -1052,7 +935,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.bavaria,
     catégorie: ["Bières / Brasséries"],
-    filtre: ["Bières / Brasséries"],
   },
   {
     id: 95,
@@ -1060,7 +942,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1500 FCFA",
     image: images.redbull,
     catégorie: ["Boissons Energétique"],
-    filtre: ["Boissons Energétique"],
   },
   {
     id: 96,
@@ -1068,7 +949,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.bullet,
     catégorie: ["Vodka"],
-    filtre: ["Vodka"],
   },
   {
     id: 97,
@@ -1076,7 +956,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.reaktor,
     catégorie: ["Boissons Energétique"],
-    filtre: ["Boissons Energétique"],
   },
   {
     id: 98,
@@ -1084,17 +963,6 @@ export const drinksItems: MenuItem[] = [
     prix: "1000 FCFA",
     image: images.fanta,
     catégorie: ["Boissons Gazeuse"],
-    filtre: ["Boissons Gazeuse"],
   },
+
 ];
-
-// Versions avec identifiants uniques et préfixés par type
-export const menuItemsUniq: MenuItem[] = menuItems.map((item) => ({
-  ...item,
-  id: `P-${String(item.id)}`,
-}));
-
-export const drinksItemsUniq: MenuItem[] = drinksItems.map((item) => ({
-  ...item,
-  id: `B-${String(item.id)}`,
-}));
