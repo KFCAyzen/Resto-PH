@@ -2,6 +2,7 @@ import './App.css';
 import PlatsPage from './PlatsPage';
 import BoissonsPage from './BoissonsPage';
 import CartPage from './CartPage';
+import AdminPage from './AdminPage';
 import ProtectedAdminRoute from './ProtectedAdminRoute';
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
@@ -9,7 +10,7 @@ import logo from './assets/logo.jpg';
 import type { MenuItem } from './types.ts';
 import { images } from './images';
 import { useRealtimeCollection } from './hooks/useRealtimeCollection';
-import { Analytics } from "@vercel/analytics/react"
+import { menuItems } from './types';
 
 function AppContent() {
   const location = useLocation();
@@ -249,7 +250,6 @@ function App() {
   return (
     <Router>
       <AppContent />
-      <Analytics />
     </Router>
   );
 }
