@@ -46,3 +46,11 @@ firebase-debug.log
 # Temporary folders
 tmp/
 temp/
+
+# PDF files
+*.pdf
+
+# Obsolete JS files (using TypeScript)
+src/**/*.js
+!vite.config.js
+!eslint.config.js
