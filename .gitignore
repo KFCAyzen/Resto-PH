@@ -54,3 +54,6 @@ temp/
 src/**/*.js
 !vite.config.js
 !eslint.config.js
+
+# Obsolete image manager files
+src/imagesManager.ts
