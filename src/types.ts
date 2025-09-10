@@ -1,5 +1,5 @@
 import pouletDG from './assets/poulet_DG.jpg';  
-import { images } from "./images";
+import { images } from "./firebaseImages";
 
 export type MenuItem = {
   id: string | number;

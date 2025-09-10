@@ -7,7 +7,7 @@ import type { MenuItem } from "./types";
 import { useRealtimeCollection } from "./hooks/useRealtimeCollection"; // Hook temps réel
 import "./AdminPage.css";
 import { menuItems, drinksItems } from "./types";
-import { images } from "./images";
+import { images } from "./firebaseImages";
 // Convertir une URL Firebase Storage → chemin interne utilisable par ref()
 function getStoragePathFromUrl(url: string) {
   const match = url.match(/o\/(.*?)\?alt=media/);
