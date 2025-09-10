@@ -120,7 +120,8 @@ function AppContent() {
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
               padding: "0.6rem 1rem",
-              width: "95%",
+              width: "94%",
+              maxWidth: "1200px",
               borderRadius: "20px",
               border: "1px solid #7d3837",
               fontSize: "1rem",

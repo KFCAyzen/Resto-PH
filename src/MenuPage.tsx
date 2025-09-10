@@ -91,8 +91,9 @@ const MenuPage: React.FC<Props> = ({
           flexWrap: 'nowrap',
           overflowX: 'auto',
           paddingBottom: '5px',
-          width: '95%',
-          marginLeft: '10px',
+          width: '94%',
+          maxWidth: '1200px',
+          margin: '0 auto 20px auto',
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
         }}
