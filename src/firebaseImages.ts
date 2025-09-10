@@ -21,7 +21,7 @@ export const images = {
   glass: getFirebaseImageUrl('icons8-verre-a-vin-50.png'),
   glass1: getFirebaseImageUrl('icons8-verre-a-vin2-50.png'),
   carts: getFirebaseImageUrl('icons8-shopping-cart-50.png'),
-  carts1: getFirebaseImageUrl('icons8-shopping-cart-50-1.png'),
+  carts1: getFirebaseImageUrl('icons8-shopping-cart-50%20(1).png'),
   whatsapp: getFirebaseImageUrl('icons8-whatsapp-50.png'),
   loc: getFirebaseImageUrl('icons8-position-50.png'),
   phone: getFirebaseImageUrl('icons8-telephone-50.png'),
@@ -160,5 +160,7 @@ export const images = {
   up: getFirebaseImageUrl('icons8-fleche-haut-100.png'),
   facebook: getFirebaseImageUrl('icons8-facebook-100.png'),
   tiktok: getFirebaseImageUrl('icons8-tiktok-50.png'),
-  booster: getFirebaseImageUrl('booster-new.jpeg')
+  booster: getFirebaseImageUrl('booster-new.jpeg'),
+  // Correction du nom de fichier pour carts1
+  // carts1: getFirebaseImageUrl('icons8-shopping-cart-50 (1).png')
 };
