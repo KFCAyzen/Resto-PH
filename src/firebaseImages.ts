@@ -1,5 +1,5 @@
 // Configuration Firebase Storage pour les images
-const FIREBASE_STORAGE_BASE = 'https://firebasestorage.googleapis.com/v0/b/resto-ph-default-rtdb.appspot.com/o/images%2F';
+const FIREBASE_STORAGE_BASE = 'https://firebasestorage.googleapis.com/v0/b/menu-resto-ph.firebasestorage.app/o/images%2F';
 
 // Fonction pour générer l'URL Firebase Storage
 function getFirebaseImageUrl(imageName: string): string {

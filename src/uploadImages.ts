@@ -1,15 +1,7 @@
-import { initializeApp } from 'firebase/app';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { storage } from './firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
-
-// Configuration Firebase (remplacez par votre config)
-const firebaseConfig = {
-  // Votre config Firebase ici
-};
-
-const app = initializeApp(firebaseConfig);
-const storage = getStorage(app);
 
 async function uploadAllImages() {
   const assetsPath = join(__dirname, 'assets');
