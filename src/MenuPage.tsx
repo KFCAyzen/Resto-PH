@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { MenuItem } from './types';
-import { images } from './firebaseImages';
+import { images } from './imagesFallback';
 
 type Props = {
   items: MenuItem[];

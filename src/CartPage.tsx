@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import type { MenuItem } from "./types";
 import { useNavigate } from "react-router-dom";
 import "./App.css";
-import { images } from "./firebaseImages";
+import { images } from "./imagesFallback";
 
 type Props = {
   cartItems: MenuItem[];

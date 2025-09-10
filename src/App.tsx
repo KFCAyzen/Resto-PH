@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import logo from './assets/logo.jpg';
 import type { MenuItem } from './types.ts';
-import { images } from './firebaseImages';
+import { images } from './imagesFallback';
 import { useRealtimeCollection } from './hooks/useRealtimeCollection';
 import { menuItems } from './types';
 
