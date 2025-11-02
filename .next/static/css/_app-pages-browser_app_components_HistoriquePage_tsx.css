@@ -1,0 +1,191 @@
+/*!********************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[3]!./app/HistoriquePage.css ***!
+  \********************************************************************************************************************************************************************************************************************************************************************/
+.historique-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+  padding-bottom: 100px !important;
+}
+
+.historique-back-btn {
+  color: #7d3837;
+  text-decoration: none;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.historique-title {
+  text-align: center;
+  color: #7d3837;
+  margin-bottom: 2rem;
+}
+
+.historique-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-gap: 1rem;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.historique-stat-card {
+  background: #f5f5f5;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.historique-stat-title {
+  margin: 0 0 0.5rem 0;
+  color: #7d3837;
+}
+
+.historique-stat-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.historique-filter {
+  margin-bottom: 1rem;
+}
+
+.historique-filter select {
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: 1px solid #7d3837;
+  font-size: 1rem;
+}
+
+.historique-commandes {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.historique-commande-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.historique-commande-card:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-color: #7d3837;
+}
+
+.historique-commande-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.historique-client-info h3 {
+  margin: 0;
+  color: #7d3837;
+  font-size: 1.1rem;
+}
+
+.historique-client-info p {
+  margin: 0.25rem 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.historique-commande-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.historique-commande-status {
+  padding: 0.3rem 0.8rem;
+  border-radius: 16px;
+  font-size: 0.75rem;
+  color: white;
+  font-weight: 600;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.historique-commande-total {
+  margin: 0;
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #2c3e50;
+}
+
+.historique-items-title {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+}
+
+.historique-items-list {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+.historique-items-list li {
+  margin-bottom: 0.25rem;
+}
+
+.historique-no-data {
+  text-align: center;
+  color: #666;
+}
+
+.historique-commande-details {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f0f0f0;
+  animation: slideDown 0.3s ease;
+}
+
+.historique-expand-icon {
+  margin-left: 0.5rem;
+  font-size: 0.8rem;
+  color: #666;
+  transition: transform 0.3s ease;
+}
+
+.historique-expand-icon.expanded {
+  transform: rotate(180deg);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .historique-commande-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .historique-commande-right {
+    align-items: flex-start;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  
+  .historique-stats {
+    grid-template-columns: 1fr;
+  }
+}
