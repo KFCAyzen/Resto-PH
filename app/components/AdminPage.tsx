@@ -506,7 +506,7 @@ export default function AdminPage() {
       </form>
 
       {/* Barre de recherche */}
-      <div className="search-section">
+      <div className="search-section" style={{ marginBottom: '20px' }}>
         <input
           type="search"
           placeholder="Rechercher un item..."
