@@ -66,7 +66,7 @@ const MenuPage: React.FC<Props> = ({
 
   // --- Simuler chargement ---
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1200);
+    const timer = setTimeout(() => setLoading(false), 300);
     return () => clearTimeout(timer);
   }, []);
 
@@ -191,7 +191,7 @@ const MenuPage: React.FC<Props> = ({
                   }}
                   style={{ cursor: 'pointer' }}
                 >
-                  {item.image && <img src={item.image} alt={item.nom} />}
+                  {item.image && <img src={item.image} alt={item.nom} loading="lazy" decoding="async" />}
                   <h3 title={item.nom}>{truncateName(item.nom)}</h3>
                   <p>
                     {Array.isArray(item.prix)
@@ -219,7 +219,7 @@ const MenuPage: React.FC<Props> = ({
           ></div>
           <div className="modal">
             <h2>{selectedItem.nom}</h2>
-            {selectedItem.image && <img src={selectedItem.image} alt={selectedItem.nom} />}
+            {selectedItem.image && <img src={selectedItem.image} alt={selectedItem.nom} loading="lazy" decoding="async" />}
             <p><strong>Description :</strong> {selectedItem.description}</p>
 
             {Array.isArray(selectedItem.prix) ? (
