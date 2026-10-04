@@ -256,7 +256,8 @@ export default function AdminPage() {
         const data = itemDoc.data();
         if (data.image) {
           const path = getStoragePathFromUrl(data.image);
-          if (path) await deleteObject(ref(storage, path));
+          // Ne pas bloquer la suppression de l'item si Firebase Storage est indisponible
+          if (path) await deleteObject(ref(storage, path)).catch(err => console.warn("Image Storage non supprimée:", err));
         }
       }
       await deleteDoc(doc(db, collectionName, id));

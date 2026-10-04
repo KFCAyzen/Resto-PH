@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { db } from "../firebase";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import type { MenuItem } from "../types";
+import { resolveImageUrl } from "../imagesFallback";
 
 export function useRealtimeCollection(collectionName: string) {
   const [items, setItems] = useState<MenuItem[]>([]);
@@ -22,7 +23,7 @@ export function useRealtimeCollection(collectionName: string) {
             nom: data.nom ?? "",
             description: data.description ?? "",
             prix: data.prix,
-            image: data.image ?? "",
+            image: resolveImageUrl(data.image ?? ""),
             catégorie: Array.isArray(data.catégorie) ? data.catégorie : [],
             filtre: Array.isArray(data.filtre) ? data.filtre : [],
             masque: data.masque ?? false,

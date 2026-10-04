@@ -1,16 +1,42 @@
-// Images avec fallback local si Firebase échoue
-const STORAGE_BASE = 'https://firebasestorage.googleapis.com/v0/b/menu-resto-ph.firebasestorage.app/o/images%2F';
+// Images servies depuis /public (Vercel) au lieu de Firebase Storage
 
-function getImageUrl(filename: string, localPath?: string): string {
-  // En production, essayer d'abord l'image locale, puis Firebase en fallback
-  if (localPath && typeof window !== 'undefined') {
-    return localPath;
-  }
-  return `${STORAGE_BASE}${encodeURIComponent(filename)}?alt=media`;
+// Noms des fichiers dans Firebase Storage (sans accents) → noms des fichiers dans /public
+const LOCAL_NAMES: Record<string, string> = {
+  'poulet_braise.jpeg': 'poulet_braisé.jpeg',
+  'plantain-tape.jpeg': 'plantain-tapé.jpeg',
+  'ndole.jpg': 'ndolé.jpg',
+  'panne.png': 'panné.png',
+  'barBraise.jpeg': 'barBraisé.jpeg',
+  'the-citron.jpeg': 'thé-citron.jpeg',
+  'the-menthe.jpeg': 'thé-menthe.jpeg',
+  'the-vert.jpeg': 'thé-vert.jpeg',
+  'ballart-rose.png': 'ballart-rosé.png',
+  'mia-rose-new.jpeg': 'mia-rosé-new.jpeg',
+  'black-white.jpeg': 'black&white.jpeg',
+  'special-pamplemousse-plastique.jpeg': 'spécial-pamplemousse-plastique.jpeg',
+};
+
+function getImageUrl(filename: string): string {
+  return `/${LOCAL_NAMES[filename] ?? filename}`;
 }
 
-function getLocalOrFirebase(localPath: string, firebaseName: string): string {
-  return getImageUrl(firebaseName, localPath);
+function getLocalOrFirebase(localPath: string, _firebaseName: string): string {
+  return localPath;
+}
+
+// Convertit une URL d'image enregistrée dans Firestore en chemin local /public quand c'est possible :
+// - https://firebasestorage.googleapis.com/.../o/images%2F<fichier>?alt=media → /<fichier>
+// - /src/assets/<fichier> → /<fichier>
+// Les autres URLs (ex. images uploadées depuis l'admin dans images/<catégorie>/) sont renvoyées telles quelles.
+export function resolveImageUrl(url: string): string {
+  if (!url) return url;
+  const firebase = url.match(/^https:\/\/firebasestorage\.googleapis\.com\/v0\/b\/[^/]+\/o\/images%2F([^?]+)\?alt=media/);
+  if (firebase) {
+    const filename = decodeURIComponent(firebase[1]);
+    return filename.includes('/') ? url : getImageUrl(filename);
+  }
+  if (url.startsWith('/src/assets/')) return `/${url.slice('/src/assets/'.length)}`;
+  return url;
 }
 
 export const images = {
@@ -37,7 +63,7 @@ export const images = {
   tiktok: getLocalOrFirebase('/icons8-tiktok-50.png', 'icons8-tiktok-50.png'),
   pouletDg: getLocalOrFirebase('/poulet_DG.jpg', 'poulet_DG.jpg'),
   
-  // Autres images sans fallback local (Firebase uniquement)
+  // Autres images (nom Firebase converti en fichier /public via LOCAL_NAMES)
   martiniBlanc: getImageUrl('martini-blanc.jpeg'),
   martiniRouge: getImageUrl('martini-rouge-15-100-cl.jpg'),
   bouillon: getImageUrl('bouillon.jpeg'),
