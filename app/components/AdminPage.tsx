@@ -1,156 +1,125 @@
-import { useState } from "react";
-import { db, storage } from "../firebase";
-import { collection, addDoc, doc, deleteDoc, getDoc, getDocs, setDoc, updateDoc, query, orderBy, onSnapshot, Timestamp } from "firebase/firestore";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { signOut } from "firebase/auth";
+import { auth, db, storage } from "../firebase";
+import { collection, addDoc, doc, deleteDoc, getDoc, setDoc, updateDoc, query, orderBy, onSnapshot } from "firebase/firestore";
 import { ref, deleteObject } from "firebase/storage";
 import { uploadImageFromBrowser } from "../upLoadFirebase";
 import type { MenuItem } from "../types";
 import { useRealtimeCollection } from "../hooks/useRealtimeCollection"; // Hook temps réel
+import { useToast } from "../hooks/useToast";
+import { type Commande, STATUTS, formatDate, formatFCFA, statutColor, statutLabel } from "../lib/commandes";
+import { formatPrixTexte, normaliser } from "../lib/menu";
+import HistoriquePage from "./HistoriquePage";
 import "../AdminPage.css";
-import { menuItems, drinksItems } from "../types";
 import { images } from "../imagesFallback";
-import { useEffect } from "react";
 
-interface Commande {
-  id: string;
-  items: Array<{
-    nom: string;
-    prix: string;
-    quantité: number;
-  }>;
-  total: number;
-  clientNom: string;
-  clientPrenom: string;
-  localisation: string;
-  dateCommande: Timestamp;
-  statut: 'en_attente' | 'en_preparation' | 'prete' | 'livree';
+type NomCollection = "Plats" | "Boissons";
+type PriceOption = { label: string; value: string; selected?: boolean };
+
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+
+// Seules les images uploadées depuis l'admin (images/<catégorie>/<fichier>) appartiennent à un seul item.
+// Les images à la racine de images/ sont partagées entre plusieurs items : on ne les supprime jamais.
+function getUploadedStoragePath(url: string): string | null {
+  const match = url.match(/firebasestorage\.googleapis\.com\/v0\/b\/[^/]+\/o\/([^?]+)/);
+  if (!match) return null;
+  const path = decodeURIComponent(match[1]);
+  return /^images\/[^/]+\/.+/.test(path) ? path : null;
 }
-// Convertir une URL Firebase Storage → chemin interne utilisable par ref()
-function getStoragePathFromUrl(url: string) {
-  const match = url.match(/o\/(.*?)\?alt=media/);
-  return match ? decodeURIComponent(match[1]) : "";
+
+// "4000", "4 000" ou "4000 fcfa" → "4000 FCFA" ; une valeur non numérique est gardée telle quelle
+function normaliserPrix(valeur: string): string {
+  const v = valeur.trim();
+  return /^[\d\s.]+(f?\s?cfa|f)?$/i.test(v) ? `${v.replace(/[^\d]/g, "")} FCFA` : v;
+}
+
+function formatPrixItem(item: MenuItem): string {
+  if (typeof item.prix === "string") return item.prix.trim() ? formatPrixTexte(item.prix) : "Sans prix";
+  return item.prix.map(p => `${p.label ? p.label + " - " : ""}${formatPrixTexte(p.value)}`).join(", ");
 }
 
 export default function AdminPage() {
-  type PriceOption = { label: string; value: string; selected?: boolean };
   const [nom, setNom] = useState("");
   const [description, setDescription] = useState("");
   const [prix, setPrix] = useState<PriceOption[]>([]);
-  const [categorie, setCategorie] = useState<"plats" | "boissons" | "desserts" | string>("plats");
-  const [filtre, setFiltre] = useState<string>(""); // Nouveau champ filtre obligatoire
+  const [nomCollection, setNomCollection] = useState<NomCollection>("Plats");
+  const [categories, setCategories] = useState(""); // catégories séparées par des virgules
   const [imageUrl, setImageUrl] = useState("");
   const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [editId, setEditId] = useState<string | null>(null);
-  const [editingCollection, setEditingCollection] = useState<"Plats" | "Boissons" | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [activeTab, setActiveTab] = useState<'menu' | 'commandes'>('menu');
+  const [activeTab, setActiveTab] = useState<"menu" | "commandes" | "historique">("menu");
   const [commandes, setCommandes] = useState<Commande[]>([]);
+  const formRef = useRef<HTMLFormElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { showToast, toastElement } = useToast();
 
   // --- Récupération temps réel des collections ---
-  const { items: plats } = useRealtimeCollection("Plats");
-  const { items: boissons } = useRealtimeCollection("Boissons");
-  const [loading, setLoading] = useState(true);
-
-  // Fonction pour supprimer et re-uploader tous les items avec le champ masque
-  const resetAndReuploadItems = async () => {
-    if (!window.confirm('Supprimer et re-uploader tous les items ? Cette action est irréversible.')) return;
-    
-    try {
-      // Supprimer toutes les collections
-      const collections = ['Plats', 'Boissons'];
-      
-      for (const collectionName of collections) {
-        const snapshot = await getDocs(collection(db, collectionName));
-        for (const docSnapshot of snapshot.docs) {
-          await deleteDoc(doc(db, collectionName, docSnapshot.id));
-        }
-      }
-      
-      // Re-uploader les items avec le champ masque
-      for (const item of menuItems) {
-        await addDoc(collection(db, 'Plats'), {
-          ...item,
-          masque: false
-        });
-      }
-      
-      for (const item of drinksItems) {
-        await addDoc(collection(db, 'Boissons'), {
-          ...item,
-          masque: false
-        });
-      }
-      
-      alert('Tous les items ont été re-uploadés avec succès !');
-    } catch (error) {
-      console.error('Erreur lors du reset:', error);
-      alert('Erreur lors du reset');
-    }
-  };
-
-  // Migration: ajouter le champ masque aux items existants
-  const migrateExistingItems = async () => {
-    try {
-      const collections = ['Plats', 'Boissons'];
-      
-      for (const collectionName of collections) {
-        const snapshot = await getDocs(collection(db, collectionName));
-        
-        for (const docSnapshot of snapshot.docs) {
-          const data = docSnapshot.data();
-          if (data.masque === undefined) {
-            await updateDoc(doc(db, collectionName, docSnapshot.id), {
-              masque: false
-            });
-          }
-        }
-      }
-      
-      console.log('Migration terminée: champ masque ajouté aux items existants');
-    } catch (error) {
-      console.error('Erreur lors de la migration:', error);
-    }
-  };
-
-  // Simuler chargement et effectuer la migration
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-      migrateExistingItems();
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
+  const { items: plats, loading: loadingPlats } = useRealtimeCollection("Plats");
+  const { items: boissons, loading: loadingBoissons } = useRealtimeCollection("Boissons");
 
   // Récupération temps réel des commandes
   useEffect(() => {
-    const q = query(collection(db, 'commandes'), orderBy('dateCommande', 'desc'));
-    
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const commandesData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Commande[];
-      
-      setCommandes(commandesData);
-    });
-
+    const q = query(collection(db, "commandes"), orderBy("dateCommande", "desc"));
+    const unsubscribe = onSnapshot(
+      q,
+      snapshot => setCommandes(snapshot.docs.map(d => ({ id: d.id, ...d.data() }) as Commande)),
+      err => console.error("Erreur de chargement des commandes:", err)
+    );
     return () => unsubscribe();
   }, []);
 
+  const commandesActives = commandes.filter(c => c.statut !== "livree");
+
+  // Suggestions : catégories et images déjà utilisées
+  const categoriesExistantes = useMemo(() => {
+    const source = nomCollection === "Plats" ? plats : boissons;
+    return Array.from(new Set(source.flatMap(i => i.catégorie))).sort((a, b) => a.localeCompare(b, "fr"));
+  }, [nomCollection, plats, boissons]);
+
+  const imagesExistantes = useMemo(
+    () => Array.from(new Set([...plats, ...boissons].map(i => i.image).filter(src => typeof src === "string" && src.startsWith("/")))).sort(),
+    [plats, boissons]
+  );
+
+  const resetForm = () => {
+    setNom("");
+    setDescription("");
+    setPrix([]);
+    setNomCollection("Plats");
+    setCategories("");
+    setImageUrl("");
+    setEditId(null);
+    setFormError(null);
+  };
+
   /* Upload fichier */
   const uploadFile = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      setFormError("Le fichier doit être une image.");
+      return;
+    }
+    if (file.size > MAX_IMAGE_SIZE) {
+      setFormError("L'image dépasse 5 Mo. Choisissez une image plus légère.");
+      return;
+    }
+    setFormError(null);
     setUploading(true);
     try {
-      const url = await uploadImageFromBrowser(file, filtre || "general");
-      setImageUrl(url);
-    } catch {
-      setError("Erreur lors de l’upload");
+      const categorie = categories.split(",")[0]?.trim() || "general";
+      setImageUrl(await uploadImageFromBrowser(file, categorie));
+    } catch (err) {
+      console.error(err);
+      setFormError("L'envoi de l'image a échoué (Firebase Storage indisponible). Vous pouvez choisir une image existante dans le champ « Chemin de l'image ».");
     } finally {
       setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
-  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = async (e: React.DragEvent<HTMLElement>) => {
     e.preventDefault();
     const file = e.dataTransfer.files?.[0];
     if (file) await uploadFile(file);
@@ -161,536 +130,433 @@ export default function AdminPage() {
     if (file) await uploadFile(file);
   };
 
-  /* Gestion des options de prix */
-  const addPriceOption = () => setPrix([...prix, { label: "", value: "" }]);
-  const updatePriceOption = (index: number, field: "label" | "value", val: string) => {
-    const updated = [...prix];
-    updated[index][field] = val;
-    setPrix(updated);
+  /* Gestion des options de prix (mises à jour immuables) */
+  const addPriceOption = () => setPrix(prev => [...prev, { label: "", value: "" }]);
+  const updatePriceOption = (index: number, field: "label" | "value", val: string) =>
+    setPrix(prev => prev.map((opt, i) => (i === index ? { ...opt, [field]: val } : opt)));
+  const removePriceOption = (index: number) => setPrix(prev => prev.filter((_, i) => i !== index));
+
+  const startEdit = (item: MenuItem, nomColl: NomCollection) => {
+    setEditId(String(item.id));
+    setNomCollection(nomColl);
+    setNom(item.nom || "");
+    setDescription(item.description || "");
+    if (typeof item.prix !== "string") setPrix(item.prix.map(p => ({ ...p })));
+    else setPrix(item.prix.trim() ? [{ label: "", value: item.prix }] : []);
+    setCategories((item.catégorie ?? []).join(", "));
+    setImageUrl(item.image || "");
+    setFormError(null);
+    setActiveTab("menu");
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
-  const removePriceOption = (index: number) => setPrix(prix.filter((_, i) => i !== index));
 
   /* Soumission Firestore */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (saving) return;
 
-    // validations
-    if (!imageUrl) return alert("Merci d’ajouter une image !");
-    // Validations de base
-    if (!imageUrl) return alert("Merci d'ajouter une image !");
-    if (!nom.trim()) return alert("Merci de renseigner un nom !");
-    if (prix.length === 0) return alert("Ajoutez au moins une option de prix !");
-    if (prix.some(p => !p.value.trim())) return alert("Chaque option de prix doit avoir une valeur.");
-    if (prix.length >= 2 && prix.some(p => !p.label.trim())) return alert("Le label est obligatoire quand il y a plusieurs prix.");
-    if (!categorie.trim()) return alert("Merci de renseigner une catégorie !");
-    if (!filtre.trim()) return alert("Merci de renseigner un filtre !");
+    const cats = Array.from(new Set(categories.split(",").map(c => c.trim()).filter(Boolean)));
+    const options = prix.map(p => ({ ...p, label: p.label.trim(), value: normaliserPrix(p.value) }));
 
+    let erreur: string | null = null;
+    if (!nom.trim()) erreur = "Merci de renseigner un nom.";
+    else if (nomCollection === "Plats" && !description.trim()) erreur = "Merci de renseigner une description pour les plats.";
+    else if (options.some(p => !p.value)) erreur = "Chaque option de prix doit avoir une valeur.";
+    else if (options.length >= 2 && options.some(p => !p.label)) erreur = "Le libellé est obligatoire quand il y a plusieurs prix.";
+    else if (cats.length === 0) erreur = "Merci de renseigner au moins une catégorie.";
+    else if (!imageUrl.trim()) erreur = "Merci d'ajouter une image.";
+    if (erreur) {
+      setFormError(erreur);
+      return;
+    }
+
+    // Aucune option → article sans prix ("Prix sur demande") ; une seule option sans libellé → juste la valeur
+    const prixField: string | PriceOption[] =
+      options.length === 0 ? "" : options.length === 1 && !options[0].label ? options[0].value : options;
+    const data = {
+      nom: nom.trim(),
+      description: description.trim(),
+      prix: prixField,
+      catégorie: cats,
+      filtre: cats,
+      image: imageUrl.trim(),
+    };
+
+    setSaving(true);
+    setFormError(null);
     try {
-      // Auto-détection des boissons basée sur le filtre/catégorie
-      const drinkKeywords = ['guinness', 'bière', 'vin', 'whisky', 'vodka', 'champagne', 'cocktail', 'jus', 'soda', 'boisson'];
-      const isAutoDetectedDrink = drinkKeywords.some(keyword => 
-        filtre.toLowerCase().includes(keyword) || nom.toLowerCase().includes(keyword)
-      );
-      
-      const collectionName: "Plats" | "Boissons" = editId 
-        ? (editingCollection as any) 
-        : (categorie === "boissons" || isAutoDetectedDrink ? "Boissons" : "Plats");
-      
-      // Validation spécifique à la collection
-      if (collectionName === "Plats" && !description.trim()) {
-        return alert("Merci de renseigner une description pour les plats !");
-      }
-
-      // Si une seule option avec label vide → stocker juste la valeur
-      const prixField: string | PriceOption[] =
-        prix.length === 1 && prix[0].label === "" ? prix[0].value : prix;
-
       if (editId) {
-        await setDoc(
-          doc(db, collectionName, editId),
-          {
-            nom,
-            description,
-            prix: prixField,
-            catégorie: [filtre],
-            filtre: [filtre], // Enregistrement du filtre comme tableau
-            image: imageUrl,
-            masque: false, // Assurer que le champ masque existe
-          },
-          { merge: true }
-        );
+        // merge : le champ masque existant est conservé
+        await setDoc(doc(db, nomCollection, editId), data, { merge: true });
       } else {
-        await addDoc(collection(db, collectionName), {
-          nom,
-          description,
-          prix: prixField,
-          catégorie: [filtre],
-          filtre: [filtre], // Enregistrement du filtre comme tableau
-          image: imageUrl,
-          masque: false, // Nouveau champ pour tous les nouveaux items
-        });
+        await addDoc(collection(db, nomCollection), { ...data, masque: false });
       }
-
-      alert(editId ? "Item modifié avec succès !" : "Item ajouté avec succès !");
-      // reset formulaire
-      setNom("");
-      setDescription("");
-      setPrix([]);
-      setCategorie("plats");
-      setFiltre(""); // Reset filtre
-      setImageUrl("");
-      setEditId(null);
-      setEditingCollection(null);
+      showToast(editId ? `« ${data.nom} » modifié` : `« ${data.nom} » ajouté`);
+      resetForm();
     } catch (err) {
       console.error(err);
-      alert(editId ? "Erreur lors de la modification" : "Erreur lors de l’ajout");
+      setFormError(editId ? "Erreur lors de la modification." : "Erreur lors de l'ajout.");
+    } finally {
+      setSaving(false);
     }
   };
 
-  /* Suppression Firestore + Storage */
-  const handleDelete = async (collectionName: "Plats" | "Boissons", id: string) => {
-    if (!window.confirm("Supprimer cet item ?")) return;
+  /* Suppression Firestore + image uploadée */
+  const handleDelete = async (nomColl: NomCollection, item: MenuItem) => {
+    if (!window.confirm(`Supprimer « ${item.nom} » du menu ?`)) return;
+    const id = String(item.id);
     try {
-      const itemDoc = await getDoc(doc(db, collectionName, id));
-      if (itemDoc.exists()) {
-        const data = itemDoc.data();
-        if (data.image) {
-          const path = getStoragePathFromUrl(data.image);
-          // Ne pas bloquer la suppression de l'item si Firebase Storage est indisponible
-          if (path) await deleteObject(ref(storage, path)).catch(err => console.warn("Image Storage non supprimée:", err));
-        }
-      }
-      await deleteDoc(doc(db, collectionName, id));
-      alert("Item supprimé !");
+      const itemDoc = await getDoc(doc(db, nomColl, id));
+      const path = itemDoc.exists() ? getUploadedStoragePath(String(itemDoc.data().image ?? "")) : null;
+      // Ne pas bloquer la suppression de l'item si Firebase Storage est indisponible
+      if (path) await deleteObject(ref(storage, path)).catch(err => console.warn("Image Storage non supprimée:", err));
+      await deleteDoc(doc(db, nomColl, id));
+      if (editId === id) resetForm();
+      showToast(`« ${item.nom} » supprimé`);
     } catch (err) {
       console.error(err);
-      alert("Erreur lors de la suppression");
+      showToast("Erreur lors de la suppression", "error");
     }
   };
 
-  const formatPrix = (item: MenuItem) =>
-    typeof item.prix === "string"
-      ? item.prix
-      : item.prix.map(p => `${p.label ? p.label + " - " : ""}${p.value}`).join(", ");
-
-  // Fonction pour masquer/afficher un item
-  const toggleItemVisibility = async (collectionName: "Plats" | "Boissons", id: string, currentStatus: boolean) => {
+  const toggleItemVisibility = async (nomColl: NomCollection, item: MenuItem) => {
+    const masque = !item.masque;
     try {
-      await updateDoc(doc(db, collectionName, id), {
-        masque: !currentStatus
-      });
-      alert(`Item ${!currentStatus ? 'masqué' : 'affiché'} avec succès !`);
+      await updateDoc(doc(db, nomColl, String(item.id)), { masque });
+      showToast(`« ${item.nom} » ${masque ? "masqué du menu" : "visible dans le menu"}`);
     } catch (error) {
-      console.error('Erreur lors de la mise à jour:', error);
-      alert('Erreur lors de la mise à jour');
+      console.error("Erreur lors de la mise à jour:", error);
+      showToast("Erreur lors de la mise à jour", "error");
     }
   };
 
   // Gestion des commandes
   const updateCommandeStatut = async (commandeId: string, nouveauStatut: string) => {
     try {
-      await updateDoc(doc(db, 'commandes', commandeId), {
-        statut: nouveauStatut
-      });
-      alert('Statut mis à jour avec succès !');
+      await updateDoc(doc(db, "commandes", commandeId), { statut: nouveauStatut });
+      showToast(`Statut : ${statutLabel(nouveauStatut)}`);
     } catch (error) {
-      console.error('Erreur lors de la mise à jour:', error);
-      alert('Erreur lors de la mise à jour du statut');
+      console.error("Erreur lors de la mise à jour:", error);
+      showToast("Erreur lors de la mise à jour du statut", "error");
     }
   };
 
-  const deleteCommande = async (commandeId: string) => {
-    if (!window.confirm('Supprimer cette commande ?')) return;
+  const deleteCommande = async (commande: Commande) => {
+    if (!window.confirm(`Supprimer la commande de ${commande.clientPrenom} ${commande.clientNom} ?`)) return;
     try {
-      await deleteDoc(doc(db, 'commandes', commandeId));
-      alert('Commande supprimée avec succès !');
+      await deleteDoc(doc(db, "commandes", commande.id));
+      showToast("Commande supprimée");
     } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
-      alert('Erreur lors de la suppression');
+      console.error("Erreur lors de la suppression:", error);
+      showToast("Erreur lors de la suppression", "error");
     }
   };
 
-  const formatDate = (timestamp: Timestamp): string => {
-    return timestamp.toDate().toLocaleString('fr-FR');
-  };
-
-  const formatPrixCommande = (valeur: number): string => {
-    return valeur.toLocaleString('fr-FR') + ' FCFA';
-  };
-
-  const getStatutColor = (statut: string): string => {
-    switch (statut) {
-      case 'en_attente': return '#ff9800';
-      case 'en_preparation': return '#2196f3';
-      case 'prete': return '#4caf50';
-      case 'livree': return '#9e9e9e';
-      default: return '#757575';
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (err) {
+      console.error(err);
+      showToast("Déconnexion impossible", "error");
     }
   };
 
-  if (loading) {
+  const recherche = normaliser(searchTerm);
+  const filtrerEtTrier = (items: MenuItem[]) =>
+    items
+      .filter(item => !recherche || normaliser(`${item.nom} ${item.catégorie.join(" ")}`).includes(recherche))
+      .sort((a, b) => a.nom.localeCompare(b.nom, "fr"));
+
+  const renderItemList = (titre: NomCollection, items: MenuItem[]) => {
+    const visibles = filtrerEtTrier(items);
     return (
-      <div className="admin-skeleton">
-        <div className="skeleton-text" style={{ height: '32px', width: '300px', margin: '0 auto 2rem' }}></div>
-        
-        {/* Onglets skeleton */}
-        <div className="admin-skeleton-tabs">
-          <div className="admin-skeleton-tab"></div>
-          <div className="admin-skeleton-tab"></div>
-          <div className="admin-skeleton-tab"></div>
-        </div>
-        
-        {/* Formulaire skeleton */}
-        <div className="admin-skeleton-form">
-          <div className="admin-skeleton-input"></div>
-          <div className="admin-skeleton-textarea"></div>
-          <div className="admin-skeleton-input"></div>
-          <div className="admin-skeleton-input"></div>
-        </div>
-        
-        {/* Liste items skeleton */}
-        <div className="admin-skeleton-items">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="admin-skeleton-item">
-              <div className="admin-skeleton-item-img"></div>
-              <div className="admin-skeleton-item-content">
-                <div className="admin-skeleton-item-text"></div>
-                <div className="admin-skeleton-item-text short"></div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <>
+        <h2>{titre} ({visibles.length})</h2>
+        {visibles.length === 0 ? (
+          <p className="admin-empty">Aucun item trouvé.</p>
+        ) : (
+          <ul className="item-list">
+            {visibles.map(item => (
+              <li key={item.id} className={`item-card ${item.masque ? "is-hidden" : ""} ${editId === String(item.id) ? "is-editing" : ""}`}>
+                {item.image && <img src={item.image} alt="" className="item-img" loading="lazy" />}
+                <div className="item-info">
+                  <b>{item.nom}</b>
+                  {item.masque && <span className="item-badge">Masqué</span>}
+                  <span className="item-meta">{formatPrixItem(item)}</span>
+                  <span className="item-meta">{item.catégorie.join(", ")}</span>
+                </div>
+                <div className="item-actions">
+                  <button type="button" className="edit-btn" onClick={() => startEdit(item, titre)}>
+                    Modifier
+                  </button>
+                  <button
+                    type="button"
+                    className={item.masque ? "show-btn" : "hide-btn"}
+                    onClick={() => toggleItemVisibility(titre, item)}
+                  >
+                    {item.masque ? "Afficher" : "Masquer"}
+                  </button>
+                  <button type="button" className="delete-btn" onClick={() => handleDelete(titre, item)}>
+                    Supprimer
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </>
     );
-  }
+  };
 
   return (
     <div className="admin-container">
-      <h1>Back Office - Administration</h1>
-      
+      <div className="admin-header">
+        <h1>Back Office</h1>
+        <button type="button" className="admin-logout-btn" onClick={handleLogout}>
+          <img src={images.logOut} alt="" />
+          <span>Déconnexion</span>
+        </button>
+      </div>
+
       {/* Onglets */}
-      <div className="admin-tabs">
-        <button 
-          onClick={() => setActiveTab('menu')}
-          className={`admin-tab-btn ${activeTab === 'menu' ? 'active' : ''}`}
-          style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+      <div className="admin-tabs" role="tablist">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "menu"}
+          onClick={() => setActiveTab("menu")}
+          className={`admin-tab-btn ${activeTab === "menu" ? "active" : ""}`}
         >
-          <img src={activeTab === 'menu' ? images.gestionActif : images.gestion} alt="gestion" style={{ height: '20px' }} />
+          <img src={activeTab === "menu" ? images.gestionActif : images.gestion} alt="" />
           <span>Gestion du Menu</span>
         </button>
-        <button 
-          onClick={() => setActiveTab('commandes')}
-          className={`admin-tab-btn ${activeTab === 'commandes' ? 'active' : ''}`}
-          style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "commandes"}
+          onClick={() => setActiveTab("commandes")}
+          className={`admin-tab-btn ${activeTab === "commandes" ? "active" : ""}`}
         >
-          <img src={activeTab === 'commandes' ? images.commandesActif : images.commandes} alt="commandes" style={{ height: '20px' }} />
-          <span>Commandes ({commandes.filter(c => c.statut !== 'livree').length})</span>
+          <img src={activeTab === "commandes" ? images.commandesActif : images.commandes} alt="" />
+          <span>Commandes ({commandesActives.length})</span>
         </button>
-        <a href="/historique" className="admin-tab-link" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <img src={images.historique} alt="historique" style={{ height: '20px' }} />
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "historique"}
+          onClick={() => setActiveTab("historique")}
+          className={`admin-tab-btn ${activeTab === "historique" ? "active" : ""}`}
+        >
+          <img src={activeTab === "historique" ? images.historiqueActif : images.historique} alt="" />
           <span>Historique</span>
-        </a>
+        </button>
       </div>
 
       {/* Contenu de l'onglet Menu */}
-      {activeTab === 'menu' && (
+      {activeTab === "menu" && (
         <>
-          {/* Formulaire ajout item */}
-          <form className="admin-form" onSubmit={handleSubmit}>
-        <div className="form-row">
-          <input
-            type="text"
-            placeholder="Nom"
-            value={nom}
-            onChange={e => setNom(e.target.value)}
-            required
-            className="form-input"
-          />
-        </div>
-        
-        <div className="form-row">
-          <textarea
-            placeholder={categorie === "boissons" ? "Description (optionnel)" : "Description"}
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-            rows={3}
-            required={categorie !== "boissons"}
-            className="form-textarea"
-          />
-        </div>
+          <form className="admin-form" onSubmit={handleSubmit} ref={formRef} noValidate>
+            <h2 className="admin-form-title">{editId ? `Modifier « ${nom || "item"} »` : "Ajouter un item"}</h2>
 
-        <div className="price-options-section">
-          <p className="section-title">
-            <strong>Prix :</strong>
-          </p>
-          {prix.map((opt, idx) => (
-            <div key={idx} className="price-option">
-              <input
-                type="text"
-                placeholder={prix.length >= 2 ? "Label (obligatoire)" : "Label (facultatif)"}
-                value={opt.label || ""}
-                onChange={e => updatePriceOption(idx, "label", e.target.value)}
-                className="price-input"
-                required={prix.length >= 2}
-              />
-              <input
-                type="text"
-                placeholder="Valeur"
-                value={opt.value || ""}
-                onChange={e => updatePriceOption(idx, "value", e.target.value)}
-                className="price-input"
-              />
-              <button type="button" onClick={() => removePriceOption(idx)} className="remove-btn">
-                <img src={images.cross} alt="cross" />
-              </button>
+            <div className="form-row-group">
+              <div className="form-field">
+                <label className="field-label" htmlFor="admin-collection">Collection</label>
+                <select
+                  id="admin-collection"
+                  value={nomCollection}
+                  onChange={e => setNomCollection(e.target.value as NomCollection)}
+                  className="form-select"
+                  disabled={!!editId}
+                >
+                  <option value="Plats">Plats</option>
+                  <option value="Boissons">Boissons</option>
+                </select>
+              </div>
+
+              <div className="form-field">
+                <label className="field-label" htmlFor="admin-categories">Catégories</label>
+                <input
+                  id="admin-categories"
+                  type="text"
+                  list="admin-categories-list"
+                  placeholder="Ex : Plats principaux, Plats chaud"
+                  value={categories}
+                  onChange={e => setCategories(e.target.value)}
+                  className="form-input"
+                />
+                <datalist id="admin-categories-list">
+                  {categoriesExistantes.map(cat => <option key={cat} value={cat} />)}
+                </datalist>
+                <small className="field-hint">Plusieurs catégories : séparez-les par des virgules.</small>
+              </div>
             </div>
-          ))}
-          <button type="button" onClick={addPriceOption} className="add-price-btn">
-            Ajouter une option de prix
-          </button>
-        </div>
 
-        <div className="form-row-group">
-          {/* Collection (pour routage uniquement) */}
-          <div className="form-field">
-            <label className="field-label">
-              <strong>Collection :</strong>
-            </label>
-            <select value={categorie} onChange={e => setCategorie(e.target.value)} className="form-select">
-              <option value="plats">Plats</option>
-              <option value="boissons">Boissons</option>
-            </select>
-          </div>
+            <div className="form-field">
+              <label className="field-label" htmlFor="admin-nom">Nom</label>
+              <input
+                id="admin-nom"
+                type="text"
+                value={nom}
+                onChange={e => setNom(e.target.value)}
+                className="form-input"
+              />
+            </div>
 
-          {/* Filtre (pour organisation et affichage) */}
-          <div className="form-field">
-            <label className="field-label">
-              <strong>Catégorie/Filtre :</strong>
-            </label>
+            <div className="form-field">
+              <label className="field-label" htmlFor="admin-description">
+                Description{nomCollection === "Boissons" ? " (facultatif)" : ""}
+              </label>
+              <textarea
+                id="admin-description"
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                rows={3}
+                className="form-textarea"
+              />
+            </div>
+
+            <div className="price-options-section">
+              <p className="field-label">Prix</p>
+              {prix.map((opt, idx) => (
+                <div key={idx} className="price-option">
+                  <input
+                    type="text"
+                    placeholder={prix.length >= 2 ? "Libellé (ex. Moyen)" : "Libellé (facultatif)"}
+                    aria-label={`Libellé du prix ${idx + 1}`}
+                    value={opt.label || ""}
+                    onChange={e => updatePriceOption(idx, "label", e.target.value)}
+                    className="price-input"
+                  />
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="Prix (ex. 4000)"
+                    aria-label={`Valeur du prix ${idx + 1}`}
+                    value={opt.value || ""}
+                    onChange={e => updatePriceOption(idx, "value", e.target.value)}
+                    className="price-input"
+                  />
+                  <button type="button" onClick={() => removePriceOption(idx)} className="price-remove-btn" aria-label={`Retirer le prix ${idx + 1}`}>
+                    <img src={images.cross} alt="" />
+                  </button>
+                </div>
+              ))}
+              <button type="button" onClick={addPriceOption} className="add-price-btn">
+                + Ajouter une option de prix
+              </button>
+              {prix.length === 0 && (
+                <small className="field-hint">Sans option de prix, l'article s'affiche « Prix sur demande » (ex. accompagnements).</small>
+              )}
+            </div>
+
+            <div className="form-field">
+              <span className="field-label">Image</span>
+              <button
+                type="button"
+                className={`drop-zone ${uploading ? "active" : ""}`}
+                onDrop={handleDrop}
+                onDragOver={e => e.preventDefault()}
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+              >
+                {uploading ? "Envoi en cours..." : "Glissez-déposez une image ou cliquez pour en choisir une"}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={handleFileSelect}
+              />
+              <label className="field-label field-label-secondary" htmlFor="admin-image">
+                Ou chemin de l'image
+              </label>
+              <input
+                id="admin-image"
+                type="text"
+                list="admin-images-list"
+                placeholder="Ex : /coca.jpeg"
+                value={imageUrl}
+                onChange={e => setImageUrl(e.target.value)}
+                className="form-input"
+              />
+              <datalist id="admin-images-list">
+                {imagesExistantes.map(src => <option key={src} value={src} />)}
+              </datalist>
+            </div>
+
+            {imageUrl && (
+              <div className="preview">
+                <img src={imageUrl} alt="Aperçu" className="item-img" />
+              </div>
+            )}
+
+            {formError && <p className="form-error" role="alert">{formError}</p>}
+
+            <div className="form-actions">
+              <button type="submit" className="submit-btn" disabled={uploading || saving}>
+                {saving ? "Enregistrement..." : editId ? "Enregistrer les modifications" : "Ajouter au menu"}
+              </button>
+              {editId && (
+                <button type="button" className="cancel-btn" onClick={resetForm}>
+                  Annuler
+                </button>
+              )}
+            </div>
+          </form>
+
+          {/* Barre de recherche */}
+          <div className="search-section">
             <input
-              type="text"
-              placeholder="Ex : Entrées, Plats principaux, Desserts..."
-              value={filtre}
-              onChange={e => setFiltre(e.target.value)}
-              required
-              className="form-input"
+              type="search"
+              placeholder="Rechercher un item ou une catégorie..."
+              aria-label="Rechercher un item"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="search-input"
             />
           </div>
-        </div>
 
-        <div
-          className={`drop-zone ${uploading ? "active" : ""}`}
-          onDrop={handleDrop}
-          onDragOver={e => e.preventDefault()}
-          onClick={() => document.getElementById("fileInput")?.click()}
-        >
-          {uploading ? "Upload en cours..." : "Glissez-déposez une image ou cliquez"}
-          <input
-            type="file"
-            id="fileInput"
-            accept="image/*"
-            style={{ display: "none" }}
-            onChange={handleFileSelect}
-          />
-        </div>
-
-        {imageUrl && (
-          <div className="preview">
-            <img src={imageUrl} alt="Aperçu" className="item-img" />
-          </div>
-        )}
-        {error && <p style={{ color: "#e53935" }}>{error}</p>}
-
-        <button type="submit" disabled={uploading}>
-          {uploading ? "Upload..." : "Ajouter"}
-        </button>
-      </form>
-
-      {/* Barre de recherche */}
-      <div className="search-section" style={{ marginBottom: '20px' }}>
-        <input
-          type="search"
-          placeholder="Rechercher un item..."
-          value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
-          className="search-input"
-        />
-        <button
-          onClick={migrateExistingItems}
-          style={{
-            marginLeft: '10px',
-            padding: '8px 16px',
-            backgroundColor: '#2196f3',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-        >
-          Mettre à jour les items
-        </button>
-        <button
-          onClick={resetAndReuploadItems}
-          style={{
-            marginLeft: '10px',
-            padding: '8px 16px',
-            backgroundColor: '#f44336',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-        >
-          Reset & Re-upload
-        </button>
-      </div>
-
-      {/* Liste items (uniquement contenu stocké dans Firestore) */}
-      <h2>Plats</h2>
-      <ul className="item-list">
-        {plats.filter(item => 
-          item.nom?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.filtre?.[0]?.toLowerCase().includes(searchTerm.toLowerCase())
-        ).map(item => (
-          <li key={item.id} className="item-card">
-            {item.image && <img src={item.image} alt={item.nom} className="item-img" />}
-            <div className="item-info">
-              <b>{item.nom}</b> - {formatPrix(item)} <br />
-              <i>Catégorie: {item.filtre?.[0]}</i>
+          {loadingPlats || loadingBoissons ? (
+            <div className="page-loader">
+              <div className="spinner" />
             </div>
-            <div style={{ display: "flex", gap: 8 }}>
-              <button
-                type="button"
-                className="edit-btn"
-                onClick={() => {
-                  setEditId(String(item.id));
-                  setEditingCollection("Plats");
-                  setNom(item.nom || "");
-                  setDescription(item.description || "");
-                  if (typeof item.prix === "string") setPrix([{ label: "", value: item.prix }]);
-                  else setPrix(item.prix as PriceOption[]);
-                  setCategorie(item.catégorie?.[0] || "plats");
-                  setFiltre(item.filtre?.[0] || ""); // Charger le filtre
-                  setImageUrl(item.image || "");
-                }}
-              >
-                Modifier
-              </button>
-              <button
-                className={item.masque ? "show-btn" : "hide-btn"}
-                onClick={() => toggleItemVisibility("Plats", String(item.id), item.masque || false)}
-                style={{
-                  backgroundColor: item.masque ? '#4caf50' : '#ff9800',
-                  color: 'white',
-                  border: 'none',
-                  padding: '5px 10px',
-                  borderRadius: '4px',
-                  cursor: 'pointer'
-                }}
-              >
-                {item.masque ? 'Afficher' : 'Masquer'}
-              </button>
-              <button
-                className="delete-btn"
-                onClick={() => handleDelete("Plats", String(item.id))}
-              >
-                Supprimer
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
-
-      <h2>Boissons</h2>
-      <ul className="item-list">
-        {boissons.filter(item => 
-          item.nom?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.filtre?.[0]?.toLowerCase().includes(searchTerm.toLowerCase())
-        ).map(item => (
-          <li key={item.id} className="item-card">
-            {item.image && <img src={item.image} alt={item.nom} className="item-img" />}
-            <div className="item-info">
-              <b>{item.nom}</b> - {formatPrix(item)} <br />
-              <i>Catégorie: {item.filtre?.[0]}</i>
-            </div>
-            <div style={{ display: "flex", gap: 8 }}>
-              <button
-                type="button"
-                className="edit-btn"
-                onClick={() => {
-                  setEditId(String(item.id));
-                  setEditingCollection("Boissons");
-                  setNom(item.nom || "");
-                  setDescription(item.description || "");
-                  if (typeof item.prix === "string") setPrix([{ label: "", value: item.prix }]);
-                  else setPrix(item.prix as PriceOption[]);
-                  setCategorie(item.catégorie?.[0] || "boissons");
-                  setFiltre(item.filtre?.[0] || ""); // Charger le filtre
-                  setImageUrl(item.image || "");
-                }}
-              >
-                Modifier
-              </button>
-              <button
-                className={item.masque ? "show-btn" : "hide-btn"}
-                onClick={() => toggleItemVisibility("Boissons", String(item.id), item.masque || false)}
-                style={{
-                  backgroundColor: item.masque ? '#4caf50' : '#ff9800',
-                  color: 'white',
-                  border: 'none',
-                  padding: '5px 10px',
-                  borderRadius: '4px',
-                  cursor: 'pointer'
-                }}
-              >
-                {item.masque ? 'Afficher' : 'Masquer'}
-              </button>
-              <button
-                className="delete-btn"
-                onClick={() => handleDelete("Boissons", String(item.id))}
-              >
-                Supprimer
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
+          ) : (
+            <>
+              {renderItemList("Plats", plats)}
+              {renderItemList("Boissons", boissons)}
+            </>
+          )}
         </>
       )}
 
       {/* Contenu de l'onglet Commandes */}
-      {activeTab === 'commandes' && (
+      {activeTab === "commandes" && (
         <div className="commandes-section">
-          <h2>Gestion des Commandes</h2>
-          
-          {commandes.length === 0 ? (
-            <p className="commandes-no-data">Aucune commande trouvée.</p>
+          <h2>Commandes en cours</h2>
+
+          {commandesActives.length === 0 ? (
+            <p className="commandes-no-data">Aucune commande en cours. Les commandes livrées sont dans l'historique.</p>
           ) : (
             <div className="commandes-list">
-              {commandes.map((commande) => (
+              {commandesActives.map(commande => (
                 <div key={commande.id} className="commande-card">
                   <div className="commande-header">
                     <div className="commande-client">
-                      <h3>
-                        {commande.clientPrenom} {commande.clientNom}
-                      </h3>
-                      <p>
-                        {formatDate(commande.dateCommande)} • {commande.localisation}
-                      </p>
+                      <h3>{commande.clientPrenom} {commande.clientNom}</h3>
+                      <p>{formatDate(commande.dateCommande)} • {commande.localisation}</p>
                     </div>
                     <div className="commande-total">
-                      <p>
-                        {formatPrixCommande(commande.total)}
-                      </p>
+                      <p>{formatFCFA(commande.total)}</p>
                     </div>
                   </div>
-                  
+
                   <div className="commande-items">
-                    <h4>Articles commandés:</h4>
+                    <h4>Articles commandés :</h4>
                     <ul>
                       {commande.items.map((item, index) => (
                         <li key={index}>
-                          {item.nom} × {item.quantité} ({item.prix})
+                          {item.nom} × {item.quantité} ({formatPrixTexte(item.prix) || "prix sur demande"})
                         </li>
                       ))}
                     </ul>
@@ -698,24 +564,21 @@ export default function AdminPage() {
 
                   <div className="commande-actions">
                     <div className="commande-status-group">
-                      <label className="commande-status-label">Statut:</label>
-                      <select 
+                      <label className="commande-status-label" htmlFor={`statut-${commande.id}`}>Statut :</label>
+                      <select
+                        id={`statut-${commande.id}`}
                         value={commande.statut}
-                        onChange={(e) => updateCommandeStatut(commande.id, e.target.value)}
+                        onChange={e => updateCommandeStatut(commande.id, e.target.value)}
                         className="commande-status-select"
-                        style={{ backgroundColor: getStatutColor(commande.statut) }}
+                        style={{ backgroundColor: statutColor(commande.statut) }}
                       >
-                        <option value="en_attente">En attente</option>
-                        <option value="en_preparation">En préparation</option>
-                        <option value="prete">Prête</option>
-                        <option value="livree">Livrée</option>
+                        {STATUTS.map(s => (
+                          <option key={s.value} value={s.value}>{s.label}</option>
+                        ))}
                       </select>
                     </div>
-                    
-                    <button
-                      onClick={() => deleteCommande(commande.id)}
-                      className="commande-delete-btn"
-                    >
+
+                    <button type="button" onClick={() => deleteCommande(commande)} className="commande-delete-btn">
                       Supprimer
                     </button>
                   </div>
@@ -726,7 +589,9 @@ export default function AdminPage() {
         </div>
       )}
 
+      {activeTab === "historique" && <HistoriquePage commandes={commandes} />}
 
+      {toastElement}
     </div>
   );
 }

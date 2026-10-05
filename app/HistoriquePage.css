@@ -1,24 +1,40 @@
-.historique-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem;
-  padding-bottom: 100px !important;
-}
-
-.historique-back-btn {
-  color: #7d3837;
-  text-decoration: none;
-  font-size: 1rem;
-  display: inline-flex;
+.historique-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
-.historique-title {
-  text-align: center;
-  color: #7d3837;
-  margin-bottom: 2rem;
+.admin-container .historique-title {
+  margin: 0;
+}
+
+.historique-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.historique-pdf-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background-color: var(--brand);
+  color: white;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.historique-pdf-btn.secondary {
+  background-color: #5a2d2c;
+}
+
+.historique-pdf-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
 }
 
 .historique-stats {
@@ -47,14 +63,20 @@
 }
 
 .historique-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
   margin-bottom: 1rem;
+  color: var(--brand);
 }
 
 .historique-filter select {
+  min-width: 160px;
   padding: 0.5rem;
-  border-radius: 5px;
-  border: 1px solid #7d3837;
-  font-size: 1rem;
+  border: 1px solid var(--brand);
+  border-radius: 6px;
+  background: white;
 }
 
 .historique-commandes {
@@ -68,8 +90,7 @@
   border-radius: 8px;
   padding: 1rem;
   background-color: white;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .historique-commande-card:hover {
@@ -81,7 +102,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
 .historique-client-info h3 {
@@ -109,7 +137,6 @@
   font-size: 0.75rem;
   color: white;
   font-weight: 600;
-  text-transform: capitalize;
   white-space: nowrap;
 }
 
@@ -171,12 +198,12 @@
 @media (max-width: 768px) {
   .historique-commande-header {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+    align-items: stretch;
+    gap: 0.75rem;
   }
   
   .historique-commande-right {
-    align-items: flex-start;
+    align-items: center;
     flex-direction: row;
     justify-content: space-between;
   }
