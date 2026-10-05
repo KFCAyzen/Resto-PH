@@ -1,69 +1,34 @@
-# React + TypeScript + Vite
+# Paulina Hôtel — Menu digital
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Menu en ligne du restaurant Paulina Hôtel : les clients consultent les plats et boissons, composent un panier et envoient leur commande par WhatsApp. Un back office permet de gérer le menu, de suivre les commandes et de consulter l'historique.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Next.js 15 (App Router) + React 19, déployé sur Vercel
+- Firebase : Firestore (menu et commandes), Authentication (back office), Storage (upload d'images depuis l'admin)
+- Les images du menu sont servies depuis `public/`
 
-## Expanding the ESLint configuration
+## Démarrer
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev     # http://localhost:3000
+npm run build   # build de production
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+La configuration Firebase est lue depuis les variables `NEXT_PUBLIC_FIREBASE_*` (avec des valeurs par défaut dans `app/firebase.ts`).
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Paramètres d'URL
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Le QR code de chaque table ou chambre ajoute la localisation à la commande :
+
+- `/?table=5` → « Table 5 »
+- `/?chambre=12` → « Chambre 12 »
+- `/?HP03` → « HP03 »
+
+## Structure
+
+- `app/page.tsx` : navigation (plats, boissons, panier, admin), panier stocké dans `localStorage`
+- `app/components/` : pages du menu, panier, back office, historique
+- `app/hooks/` : écoute temps réel des collections Firestore, état d'authentification
+- `app/lib/commandes.ts` : type, statuts et formatage des commandes
