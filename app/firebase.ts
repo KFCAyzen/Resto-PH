@@ -13,7 +13,7 @@ const firebaseConfig = {
     const raw = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ?? "menu-resto-ph.firebasestorage.app";
     return raw.startsWith("gs://") ? raw.replace(/^gs:\/\//, "") : raw;
   })(),
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ?? "xxxxxxxx",
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ?? "603076512823",
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID ?? "1:603076512823:web:bf700986987815a37a43b2",
 };
 

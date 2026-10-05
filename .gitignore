@@ -57,3 +57,8 @@ src/**/*.js
 
 # Obsolete image manager files
 src/imagesManager.ts
+# Next.js / Vercel
+.next/
+out/
+.vercel/
+*.tsbuildinfo
