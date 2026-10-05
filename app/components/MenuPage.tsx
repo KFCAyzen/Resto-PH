@@ -1,167 +1,123 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import type { MenuItem } from '../types';
 import { images } from '../imagesFallback';
+import { formatPrixTexte, normaliser, prixAffiche, prixMinimum, PRIX_SUR_DEMANDE } from '../lib/menu';
 
 type Props = {
   items: MenuItem[];
-  cartItems: MenuItem[];
-  setCartItems: React.Dispatch<React.SetStateAction<MenuItem[]>>;
+  loading: boolean;
+  error: string | null;
   onAddToCart: (item: MenuItem) => void;
-  category?: string;
   searchTerm?: string;
+  onClearSearch?: () => void;
 };
 
 const MenuPage: React.FC<Props> = ({
   items,
-  cartItems,
-  setCartItems,
+  loading,
+  error,
   onAddToCart,
-  category,
   searchTerm = '',
+  onClearSearch,
 }) => {
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('Tout');
-  const [loading, setLoading] = useState(true);
   const [selectedPrice, setSelectedPrice] = useState<string>(""); // prix choisi (radio)
 
-  // Function to extract numeric price for sorting
-  const getNumericPrice = (item: MenuItem): number => {
-    if (typeof item.prix === 'string') {
-      const match = item.prix.match(/\d+/);
-      return match ? parseInt(match[0]) : 0;
-    }
-    if (Array.isArray(item.prix) && item.prix.length > 0) {
-      const match = item.prix[0].value.match(/\d+/);
-      return match ? parseInt(match[0]) : 0;
-    }
-    return 0;
-  };
+  // Items masqués exclus, tri par prix croissant ; les items sans prix (accompagnements) en dernier
+  const sortedItems = useMemo(
+    () =>
+      items
+        .filter(item => item.masque !== true)
+        .sort((a, b) => (prixMinimum(a) ?? Infinity) - (prixMinimum(b) ?? Infinity)),
+    [items]
+  );
 
-  // Function to truncate long names
-  const truncateName = (name: string): string => {
-    const words = name.split(' ');
-    if (words.length <= 2) return name;
-    if (words[0].length + words[1].length <= 20) {
-      return words[0] + ' ' + words[1] + '...';
-    }
-    return words[0] + '...';
-  };
+  const categories = useMemo(
+    () => ['Tout', ...Array.from(new Set(sortedItems.flatMap(item => item.catégorie)))],
+    [sortedItems]
+  );
 
-  // Filter out hidden items and sort by price ascending
-  // Only hide items that are explicitly marked as masque: true
-  const visibleItems = items.filter(item => item.masque !== true);
-  const sortedItems = visibleItems.sort((a, b) => getNumericPrice(a) - getNumericPrice(b));
+  const recherche = normaliser(searchTerm);
+  const filteredItems = sortedItems
+    .filter(item => selectedCategory === 'Tout' || item.catégorie.includes(selectedCategory))
+    .filter(item => !recherche || normaliser(`${item.nom} ${item.catégorie.join(' ')}`).includes(recherche));
 
-  // Prevent body scroll when modal is open
-  useEffect(() => {
-    if (selectedItem) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [selectedItem]);
-
-  // --- Simuler chargement ---
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 300);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const allCategories = Array.from(new Set(sortedItems.flatMap(item => item.catégorie)));
-  const categories = ['Tout', ...allCategories];
-
-  const initialFilteredItems = category
-    ? sortedItems.filter(item =>
-        item.catégorie.map(c => c.toLowerCase()).includes(category.toLowerCase())
-      )
-    : sortedItems;
-
-  const finalFilteredItems =
-    selectedCategory === 'Tout'
-      ? initialFilteredItems.filter(item =>
-          item.nom.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      : initialFilteredItems
-          .filter(item => item.catégorie.includes(selectedCategory))
-          .filter(item =>
-            item.nom.toLowerCase().includes(searchTerm.toLowerCase())
-          );
-
-  const groupedItems = finalFilteredItems.reduce((acc: { [key: string]: MenuItem[] }, item) => {
+  const groupedItems = filteredItems.reduce((acc: { [key: string]: MenuItem[] }, item) => {
     item.catégorie.forEach(cat => {
+      if (selectedCategory !== 'Tout' && cat !== selectedCategory) return;
       if (!acc[cat]) acc[cat] = [];
       acc[cat].push(item);
     });
     return acc;
   }, {});
 
-  const itemsRef = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const closeModal = () => {
+    setSelectedItem(null);
+    setSelectedPrice("");
+  };
+
+  // Bloquer le défilement de la page et fermer avec Échap quand la fenêtre est ouverte
+  useEffect(() => {
+    if (!selectedItem) return;
+    document.body.style.overflow = 'hidden';
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeModal();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [selectedItem]);
+
+  // Apparition progressive des cartes quand elles entrent dans l'écran
+  const itemsRef = useRef<{ [key: string]: HTMLButtonElement | null }>({});
+  const renderKey = `${selectedCategory}|${recherche}|${filteredItems.map(i => i.id).join(',')}`;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const index = entry.target.getAttribute('data-index');
-            setTimeout(() => entry.target.classList.add('visible'), Number(index) * 100);
+        entries
+          .filter(entry => entry.isIntersecting)
+          .forEach((entry, i) => {
+            // Décalage limité aux cartes qui apparaissent ensemble, pour ne jamais faire attendre
+            setTimeout(() => entry.target.classList.add('is-visible'), Math.min(i, 6) * 60);
             observer.unobserve(entry.target);
-          }
-        });
+          });
       },
       { threshold: 0.1 }
     );
 
-    Object.values(itemsRef.current).forEach(item => item && observer.observe(item));
+    Object.values(itemsRef.current).forEach(el => {
+      if (el && !el.classList.contains('is-visible')) observer.observe(el);
+    });
 
     return () => observer.disconnect();
-  }, [groupedItems]);
+  }, [renderKey, loading]);
 
-  return (
-    <div>
-      {/* --- Boutons catégories --- */}
-      <div
-        className="scroll-container"
-        style={{
-          display: 'flex',
-          gap: '8px',
-          marginBottom: '20px',
-          flexWrap: 'nowrap',
-          overflowX: 'auto',
-          paddingBottom: '5px',
-          width: '94%',
-          maxWidth: '1200px',
-          margin: '0 auto 20px auto',
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
-        }}
-      >
-        {categories.map(cat => (
-          <button
-            key={cat}
-            onClick={() => setSelectedCategory(cat)}
-            style={{
-              padding: '6px 10px',
-              borderRadius: '15px',
-              border: selectedCategory === cat ? 'none' : '1px solid #7d3837',
-              backgroundColor: selectedCategory === cat ? '#7d3837' : '#fff',
-              color: selectedCategory === cat ? 'white' : '#7d3837',
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-              flexShrink: 0,
-            }}
-          >
-            {cat}
-          </button>
-        ))}
-        <style>{`.scroll-container::-webkit-scrollbar { display: none; }`}</style>
-      </div>
+  const isArrayPrice = selectedItem !== null && Array.isArray(selectedItem.prix);
 
-      {/* --- Skeleton ou Produits --- */}
-      {loading ? (
-        <div className="skeleton-container">
+  const addSelectedToCart = () => {
+    if (!selectedItem) return;
+    if (Array.isArray(selectedItem.prix)) {
+      const selectedOption = selectedItem.prix.find(opt => opt.value === selectedPrice);
+      if (!selectedOption) return;
+      onAddToCart({
+        ...selectedItem,
+        nom: `${selectedItem.nom} (${selectedOption.label})`, // Ajout du label dans le nom
+        prix: selectedOption.value,
+      });
+    } else {
+      onAddToCart({ ...selectedItem, prix: selectedItem.prix });
+    }
+    closeModal();
+  };
+
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="skeleton-container" aria-label="Chargement du menu">
           {[...Array(8)].map((_, i) => (
             <div key={i} className="skeleton-card">
               <div className="skeleton-img"></div>
@@ -170,110 +126,125 @@ const MenuPage: React.FC<Props> = ({
             </div>
           ))}
         </div>
-      ) : (
-        Object.entries(groupedItems).map(([catégorie, items]) => (
-          <div key={catégorie} className="menu-section">
-            <h2 className="categorie-title">{catégorie}</h2>
-            <div className="menu-items">
-              {items.map((item, index) => {
-                const uniqueKey = `${catégorie}-${item.id}`;
-                return (
-                 <div
-                  key={uniqueKey}
-                  ref={el => { itemsRef.current[uniqueKey] = el; }}
-                  className="menuitem hidden"
-                  data-index={index}
-                  onClick={() => {
-                    setSelectedItem(item);
-                    if (Array.isArray(item.prix)) {
-                      setSelectedPrice(""); // reset la sélection
-                    }
-                  }}
-                  style={{ cursor: 'pointer' }}
-                >
-                  {item.image && <img src={item.image} alt={item.nom} loading="lazy" decoding="async" />}
-                  <h3 title={item.nom}>{truncateName(item.nom)}</h3>
-                  <p>
-                    {Array.isArray(item.prix)
-                      ? `À partir de ${Math.min(
-                          ...item.prix.map(opt => parseInt(opt.value.replace(/\D/g, ""), 10))
-                        )} FCFA`
-                      : item.prix}
-                  </p>
-                </div>
-                );
-              })}
-            </div>
-          </div>
-        ))
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="menu-empty" role="alert">
+          <p>Impossible de charger le menu pour le moment.</p>
+          <button type="button" onClick={() => window.location.reload()}>Réessayer</button>
+        </div>
+      );
+    }
+
+    if (filteredItems.length === 0) {
+      return (
+        <div className="menu-empty">
+          {recherche ? (
+            <>
+              <p>Aucun résultat pour « {searchTerm.trim()} ».</p>
+              {onClearSearch && <button type="button" onClick={onClearSearch}>Effacer la recherche</button>}
+            </>
+          ) : (
+            <p>Aucun article disponible pour le moment.</p>
+          )}
+        </div>
+      );
+    }
+
+    return Object.entries(groupedItems).map(([catégorie, items]) => (
+      <section key={catégorie} className="menu-section">
+        <h2 className="categorie-title">{catégorie}</h2>
+        <div className="menu-items">
+          {items.map(item => {
+            const uniqueKey = `${catégorie}-${item.id}`;
+            const prix = prixAffiche(item);
+            return (
+              <button
+                type="button"
+                key={uniqueKey}
+                ref={el => { itemsRef.current[uniqueKey] = el; }}
+                className="menuitem reveal"
+                onClick={() => {
+                  setSelectedItem(item);
+                  setSelectedPrice("");
+                }}
+              >
+                {item.image && <img src={item.image} alt="" loading="lazy" decoding="async" />}
+                <span className="menuitem-name" title={item.nom}>{item.nom}</span>
+                <span className={`prix ${prix === PRIX_SUR_DEMANDE ? 'prix-sur-demande' : ''}`}>{prix}</span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+    ));
+  };
+
+  return (
+    <div>
+      {/* --- Boutons catégories --- */}
+      {!loading && !error && (
+        <div className="category-chips" role="group" aria-label="Catégories">
+          {categories.map(cat => (
+            <button
+              type="button"
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`chip ${selectedCategory === cat ? 'active' : ''}`}
+              aria-pressed={selectedCategory === cat}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
       )}
+
+      {renderContent()}
 
       {/* --- Modal --- */}
       {selectedItem && (
         <>
-          <div 
-            className="overlay" 
-            onClick={() => setSelectedItem(null)}
-            onTouchStart={(e) => e.preventDefault()}
-            onScroll={(e) => e.preventDefault()}
-          ></div>
-          <div className="modal">
-            <h2>{selectedItem.nom}</h2>
-            {selectedItem.image && <img src={selectedItem.image} alt={selectedItem.nom} loading="lazy" decoding="async" />}
-            <p><strong>Description :</strong> {selectedItem.description}</p>
+          <div className="overlay" onClick={closeModal}></div>
+          <div className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <h2 id="modal-title">{selectedItem.nom}</h2>
+            {selectedItem.image && <img src={selectedItem.image} alt={selectedItem.nom} decoding="async" />}
+            {selectedItem.description?.trim() && (
+              <p><strong>Description :</strong> {selectedItem.description}</p>
+            )}
 
             {Array.isArray(selectedItem.prix) ? (
-              <div>
-                <p><strong>Choisissez une option :</strong></p>
+              <fieldset className="price-choices">
+                <legend><strong>Choisissez une option :</strong></legend>
                 {selectedItem.prix.map((opt, idx) => (
-                  <div className='choise' key={idx}>
+                  <label className="price-choice" key={idx}>
                     <input
                       type="radio"
-                      id={`price-${idx}`}
                       name={`prix-${selectedItem.id}`}
                       value={opt.value}
                       checked={selectedPrice === opt.value}
                       onChange={() => setSelectedPrice(opt.value)}
                     />
-                    <label htmlFor={`price-${idx}`}>{opt.label} - {opt.value}</label>
-                  </div>
+                    <span>{opt.label}</span>
+                    <span>{formatPrixTexte(opt.value)}</span>
+                  </label>
                 ))}
-              </div>
+              </fieldset>
             ) : (
-              <p><strong>Prix :</strong> {selectedItem.prix}</p>
+              <p><strong>Prix :</strong> {prixAffiche(selectedItem)}</p>
             )}
 
             <div className="buttons">
               <button
+                type="button"
                 className="addBtn"
-                onClick={() => {
-                  if (Array.isArray(selectedItem.prix)) {
-                    const selectedOption = selectedItem.prix.find(opt => opt.value === selectedPrice);
-                    if (selectedOption) {
-                      onAddToCart({
-                        ...selectedItem,
-                        nom: `${selectedItem.nom} (${selectedOption.label})`, // Ajout du label dans le nom
-                        prix: selectedOption.value,
-                      });
-                    }
-                  } else {
-                    onAddToCart({
-                      ...selectedItem,
-                      prix: selectedItem.prix as string,
-                    });
-                  }
-                  setSelectedItem(null);
-                  setSelectedPrice("");
-                }}
-                disabled={Array.isArray(selectedItem.prix) && !selectedPrice} // bouton désactivé si aucune option sélectionnée
-                style={{
-                  backgroundColor: Array.isArray(selectedItem.prix) && !selectedPrice ? '#7d383780' : '#7d3837',
-                  cursor: Array.isArray(selectedItem.prix) && !selectedPrice ? 'not-allowed' : 'pointer'
-                }}
+                onClick={addSelectedToCart}
+                disabled={isArrayPrice && !selectedPrice} // bouton désactivé si aucune option sélectionnée
               >
                 Ajouter au panier
               </button>
-              <button className="close" onClick={() => setSelectedItem(null)}>Fermer</button>
+              <button type="button" className="close" onClick={closeModal}>Fermer</button>
             </div>
           </div>
         </>
@@ -281,40 +252,40 @@ const MenuPage: React.FC<Props> = ({
 
       {/* --- Footer --- */}
       <section className="footer">
-        <h2>Contactez nous</h2>
-        <div className="tel">
-          <img src={images.phone} alt="" />
-          <p className="num"><span>Téléphone:</span> +237 657 011 948 / 675 026 289</p>
-        </div>
-        <div className="mail">
-          <img src={images.mail} alt="" />
-          <p>paulinahotel@yahoo.com</p>
-        </div>
-        <div className="loc">
-          <img src={images.loc} alt="" />
-          <p>A 500m de Abattoir</p>
-        </div>
-        <div className="socials">
-          <div>
-            <a href="https://www.facebook.com/share/19eJEP4m5g/?mibextid=wwXIfr">
+        <div className="footer-inner">
+          <h2>Contactez-nous</h2>
+          <div className="contact-line">
+            <img src={images.phone} alt="" />
+            <span>
+              <a className="contact-link" href="tel:+237657011948">+237 657 011 948</a>
+              {" / "}
+              <a className="contact-link" href="tel:+237675026289">675 026 289</a>
+            </span>
+          </div>
+          <a className="contact-line" href="mailto:paulinahotel@yahoo.com">
+            <img src={images.mail} alt="" />
+            <span>paulinahotel@yahoo.com</span>
+          </a>
+          <div className="contact-line">
+            <img src={images.loc} alt="" />
+            <span>À 500 m de l'Abattoir</span>
+          </div>
+          <div className="socials">
+            <a href="https://www.facebook.com/share/19eJEP4m5g/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer">
               <img src={images.facebook} alt="" />
+              <span>Facebook</span>
             </a>
-            <p>FaceBook</p>
-          </div>
-          <div>
-            <a href="https://www.tiktok.com/@paulina.hotel21?_t=ZM-8ycfR0dU40s&_r=1">
+            <a href="https://www.tiktok.com/@paulina.hotel21?_t=ZM-8ycfR0dU40s&_r=1" target="_blank" rel="noopener noreferrer">
               <img src={images.tiktok} alt="" />
+              <span>TikTok</span>
             </a>
-            <p>TikTok</p>
-          </div>
-          <div>
-            <a href="https://wa.link/zxqlo7">
+            <a href="https://wa.link/zxqlo7" target="_blank" rel="noopener noreferrer">
               <img src={images.whatsapp} alt="" />
+              <span>WhatsApp</span>
             </a>
-            <p>WhatsApp</p>
           </div>
+          <footer>© {new Date().getFullYear()} Paulina Hôtel. Tous droits réservés.</footer>
         </div>
-        <footer>Copyright Paulina Hôtel 2025 all rights reserved</footer>
       </section>
     </div>
   );

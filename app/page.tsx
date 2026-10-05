@@ -6,29 +6,45 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import type { MenuItem } from './types';
 import { images } from './imagesFallback';
+import { cleCommande, prixUnitaire } from './lib/menu';
+import { useToast } from './hooks/useToast';
 
 const PlatsPage = dynamic(() => import('./components/PlatsPage'), { ssr: false });
 const BoissonsPage = dynamic(() => import('./components/BoissonsPage'), { ssr: false });
 const CartPage = dynamic(() => import('./components/CartPage'), { ssr: false });
 const ProtectedAdminRoute = dynamic(() => import('./components/ProtectedAdminRoute'), { ssr: false });
-const HistoriquePage = dynamic(() => import('./components/HistoriquePage'), { ssr: false });
+
+type Page = 'plats' | 'boissons' | 'panier' | 'admin';
 
 function HomeContent() {
   const searchParams = useSearchParams();
-  const [currentPage, setCurrentPage] = useState<'plats' | 'boissons' | 'panier' | 'admin' | 'historique'>('plats');
+  const [currentPage, setCurrentPage] = useState<Page>('plats');
   const [cartItems, setCartItems] = useState<MenuItem[]>([]);
+  const [cartLoaded, setCartLoaded] = useState(false);
   const [table, setTable] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
-
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const { showToast, toastElement } = useToast();
 
   useEffect(() => {
-    const storedCart = localStorage.getItem("cart");
-    if (storedCart) setCartItems(JSON.parse(storedCart));
+    try {
+      const storedCart = localStorage.getItem("cart");
+      if (storedCart) setCartItems(JSON.parse(storedCart));
+    } catch {
+      // panier corrompu ou stockage indisponible : on repart d'un panier vide
+    }
+    setCartLoaded(true);
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cartItems));
-  }, [cartItems]);
+    // Ne pas écraser le panier sauvegardé avant de l'avoir relu
+    if (!cartLoaded) return;
+    try {
+      localStorage.setItem("cart", JSON.stringify(cartItems));
+    } catch {
+      // stockage indisponible (navigation privée) : le panier reste en mémoire
+    }
+  }, [cartItems, cartLoaded]);
 
   useEffect(() => {
     const tableParam = searchParams.get("table");
@@ -41,70 +57,49 @@ function HomeContent() {
     else setTable(null);
   }, [searchParams]);
 
-  const prixToString = (
-    prix: string | { label: string; value: string; selected?: boolean }[]
-  ): string => {
-    if (typeof prix === "string") return prix;
-    if (Array.isArray(prix)) {
-      const selected = prix.find((p) => p.selected);
-      return selected ? selected.value : prix[0].value;
-    }
-    return "";
+  useEffect(() => {
+    const onScroll = () => setShowScrollTop(window.scrollY > 400);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const goTo = (page: Page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0 });
   };
 
   const handleAddToCart = (item: MenuItem) => {
-    const prixStr = prixToString(item.prix);
-    const uniqueKey = `${item.id}-${prixStr}`;
-
-    const existingItem = cartItems.find(
-      (i) => `${i.id}-${prixToString(i.prix)}` === uniqueKey
+    const ligne: MenuItem = { ...item, prix: prixUnitaire(item) };
+    const key = cleCommande(ligne);
+    setCartItems(prev =>
+      prev.some(i => cleCommande(i) === key)
+        ? prev.map(i => (cleCommande(i) === key ? { ...i, quantité: (i.quantité ?? 1) + 1 } : i))
+        : [...prev, { ...ligne, quantité: 1 }]
     );
-
-    if (existingItem) {
-      setCartItems(
-        cartItems.map((i) =>
-          `${i.id}-${prixToString(i.prix)}` === uniqueKey
-            ? { ...i, quantité: (i.quantité ?? 0) + 1 }
-            : i
-        )
-      );
-    } else {
-      setCartItems([...cartItems, { ...item, prix: prixStr, quantité: 1 }]);
-    }
+    showToast(`${item.nom} ajouté au panier`);
   };
+
+  const cartCount = cartItems.reduce((acc, item) => acc + (item.quantité ?? 1), 0);
+  const isMenuPage = currentPage === 'plats' || currentPage === 'boissons';
 
   const renderCurrentPage = () => {
     switch (currentPage) {
       case 'plats':
-        return (
-          <PlatsPage
-            cartItems={cartItems}
-            setCartItems={setCartItems}
-            onAddToCart={handleAddToCart}
-            searchTerm={searchTerm}
-          />
-        );
+        return <PlatsPage onAddToCart={handleAddToCart} searchTerm={searchTerm} onClearSearch={() => setSearchTerm("")} />;
       case 'boissons':
-        return (
-          <BoissonsPage
-            cartItems={cartItems}
-            setCartItems={setCartItems}
-            onAddToCart={handleAddToCart}
-            searchTerm={searchTerm}
-          />
-        );
+        return <BoissonsPage onAddToCart={handleAddToCart} searchTerm={searchTerm} onClearSearch={() => setSearchTerm("")} />;
       case 'panier':
         return (
           <CartPage
             cartItems={cartItems}
             setCartItems={setCartItems}
             localisation={table}
+            onBrowseMenu={() => goTo('plats')}
           />
         );
       case 'admin':
         return <ProtectedAdminRoute />;
-      case 'historique':
-        return <HistoriquePage />;
       default:
         return null;
     }
@@ -113,46 +108,35 @@ function HomeContent() {
   return (
     <>
       {/* HEADER */}
-      <div className="title">
+      <header className="title">
         <div className="title-left">
-          <Image src="/logo.jpg" alt="PH" width={55} height={55} />
+          <Image src="/logo.jpg" alt="Logo Paulina Hôtel" width={55} height={55} priority />
           <h1>PAULINA HÔTEL</h1>
         </div>
         <div className="title-right">
           {currentPage === "admin" ? (
-            <button 
-              className="logout-btn"
-              onClick={async () => {
-                try {
-                  const { signOut } = await import('firebase/auth');
-                  const { auth } = await import('./firebase');
-                  await signOut(auth);
-                  setCurrentPage('plats');
-                } catch (err) {
-                  console.error(err);
-                }
-              }}
-            >
-              <img src={images.logOut} alt="logOut" />
-              <span>Déconnexion</span>
+            <button type="button" onClick={() => goTo('plats')} className="header-btn" aria-label="Retour au menu">
+              <img src={images.backArrow} alt="" />
+              <span>Menu</span>
             </button>
           ) : (
-            <button onClick={() => setCurrentPage('admin')} className="admin-link">
-              <img src={images.adminActif} alt="admin" />
+            <button type="button" onClick={() => goTo('admin')} className="header-btn" aria-label="Administration">
+              <img src={images.adminActif} alt="" />
               <span>Admin</span>
             </button>
           )}
         </div>
-      </div>
+      </header>
 
       {/* Barre de recherche */}
-      {currentPage !== "panier" && currentPage !== "admin" && currentPage !== "historique" && (
+      {isMenuPage && (
         <div className="search-container">
           <div className="search-wrapper">
-            <img src={images.search} alt="search" className="search-icon" />
+            <img src={images.search} alt="" className="search-icon" />
             <input
               type="search"
               placeholder="Rechercher un plat ou une boisson..."
+              aria-label="Rechercher un plat ou une boisson"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input-modern"
@@ -162,82 +146,60 @@ function HomeContent() {
       )}
 
       {/* CONTENU */}
-      {renderCurrentPage()}
+      <main>{renderCurrentPage()}</main>
 
       {/* BOTTOM BAR */}
-      <nav className="bottom-bar" style={{
-        position: "fixed",
-        bottom: 0,
-        left: 0,
-        width: "100%",
-        display: "flex",
-        justifyContent: "space-around",
-        alignItems: "center",
-        padding: "10px 0",
-        zIndex: 1000,
-      }}>
-        <div className="menu">
-          <button onClick={() => setCurrentPage('plats')} style={{ background: 'none', border: 'none' }}>
-            <img
-              src={currentPage === "plats" ? images.food2 : images.food}
-              alt="plats"
-            />
-          </button>
-        </div>
-        <div className="menu">
-          <button onClick={() => setCurrentPage('boissons')} style={{ background: 'none', border: 'none' }}>
-            <img
-              className="bois"
-              src={currentPage === "boissons" ? images.glass1 : images.glass}
-              alt="boissons"
-            />
-          </button>
-        </div>
-        <div className="menu">
-          <button className="cartBtn" onClick={() => setCurrentPage('panier')} style={{ background: 'none', border: 'none' }}>
-            <img
-              src={currentPage === "panier" ? images.carts1 : images.carts}
-              alt="Panier"
-            />
-            <p>{cartItems.length}</p>
-          </button>
-        </div>
+      <nav className="bottom-bar" aria-label="Navigation principale">
+        <button
+          type="button"
+          className={`nav-btn ${currentPage === 'plats' ? 'active' : ''}`}
+          aria-current={currentPage === 'plats' ? 'page' : undefined}
+          onClick={() => goTo('plats')}
+        >
+          <img src={currentPage === "plats" ? images.food2 : images.food} alt="" />
+          <span>Plats</span>
+        </button>
+        <button
+          type="button"
+          className={`nav-btn ${currentPage === 'boissons' ? 'active' : ''}`}
+          aria-current={currentPage === 'boissons' ? 'page' : undefined}
+          onClick={() => goTo('boissons')}
+        >
+          <img src={currentPage === "boissons" ? images.glass1 : images.glass} alt="" />
+          <span>Boissons</span>
+        </button>
+        <button
+          type="button"
+          className={`nav-btn ${currentPage === 'panier' ? 'active' : ''}`}
+          aria-current={currentPage === 'panier' ? 'page' : undefined}
+          aria-label={`Panier, ${cartCount} article${cartCount > 1 ? 's' : ''}`}
+          onClick={() => goTo('panier')}
+        >
+          <img src={currentPage === "panier" ? images.carts1 : images.carts} alt="" />
+          <span>Panier</span>
+          {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
+        </button>
       </nav>
 
-      {currentPage !== "panier" && currentPage !== "admin" && (
-        <div
-          className="vibrate"
-          style={{
-            position: "fixed",
-            bottom: "100px",
-            right: "35px",
-            display: "flex",
-            border: "none",
-            borderRadius: "30px",
-            cursor: "pointer",
-            fontWeight: "600",
-            zIndex: 1000,
-          }}
+      {isMenuPage && showScrollTop && (
+        <button
+          type="button"
+          className="scroll-top-btn"
+          aria-label="Revenir en haut de la page"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
-          <img
-            src={images.up}
-            style={{
-              boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
-              borderRadius: "25px",
-              height: "50px",
-            }}
-            alt=""
-          />
-        </div>
+          <img src={images.up} alt="" />
+        </button>
       )}
+
+      {toastElement}
     </>
   );
 }
 
 export default function Home() {
   return (
-    <Suspense fallback={<div>Chargement...</div>}>
+    <Suspense fallback={<div className="page-loader"><div className="spinner" /></div>}>
       <HomeContent />
     </Suspense>
   );
